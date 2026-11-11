@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Il Villaggio delle Figure Retoriche</title>
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --page: #e8e5ff;
+  --page-ink: #1d1b4d;
+  --frame: #0b0a24;
+  --night-1: #14123a;
+  --night-2: #241c63;
+  --night-3: #4a3290;
+  --house: #1f1850;
+  --roof: #3a2a82;
+  --ground: #0d2f3a;
+  --lantern: #ffb02e;
+  --lantern-ink: #2f1c00;
+  --c0: #46d3f2; --c0-ink: #04303b; --c0-sh: #1a7d96;
+  --c1: #ff6b9a; --c1-ink: #3d0620; --c1-sh: #a83261;
+  --c2: #ffb02e; --c2-ink: #2f1c00; --c2-sh: #9a6408;
+  --c3: #5be28a; --c3-ink: #063a1c; --c3-sh: #1f8a4a;
+  --paper: #f4f2ff;
+  --paper-ink: #1d1b4d;
+  --paper-soft: #4a4682;
+  --ok: #5be28a;
+  --bad: #ff5a6b;
+  --ui-ink: #f4f2ff;
+  --ui-soft: #c4bff2;
+  --ground-h: clamp(48px, 9vh, 76px);
+  --font: Arial, Helvetica, "Liberation Sans", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #0a0920; --page-ink: #e8e5ff; }
+}
+:root[data-theme="dark"] { --page: #0a0920; --page-ink: #e8e5ff; }
+
+*, *::before, *::after { box-sizing: inherit; }
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); font-size: 16px; }
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--page);
+  color: var(--page-ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: .01em;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+button { font: inherit; line-height: 1.5; color: inherit; }
+[hidden] { display: none !important; }
+mark { background: var(--lantern); color: var(--lantern-ink); padding: 0 3px; border-radius: 3px; }
+.bg-c0 { background: var(--c0); color: var(--c0-ink); }
+.bg-c1 { background: var(--c1); color: var(--c1-ink); }
+.bg-c2 { background: var(--c2); color: var(--c2-ink); }
+.bg-c3 { background: var(--c3); color: var(--c3-ink); }
+
+.cabinet {
+  width: 100%;
+  max-width: 780px;
+  height: 100%;
+  position: relative;
+  background: var(--night-1);
+  color: var(--ui-ink);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 820px) {
+  .cabinet { height: calc(100% - 24px); margin: 12px 0; border: 6px solid var(--frame); border-radius: 14px; }
+}
+.screen { display: none; flex: 1; min-height: 0; flex-direction: column; position: relative; }
+.screen.active { display: flex; }
+
+/* bottoni */
+.btn {
+  font-weight: 700;
+  font-size: 18px;
+  border: 3px solid var(--frame);
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  background: var(--lantern);
+  color: var(--lantern-ink);
+  box-shadow: 0 5px 0 var(--frame);
+}
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--frame); }
+.btn.big { font-size: 22px; padding: 12px 26px; }
+.btn.ghost { background: transparent; color: var(--ui-ink); border-color: var(--ui-soft); box-shadow: none; }
+.btn.ghost:active { transform: none; }
+.btn.dark { background: transparent; color: var(--paper-ink); border-color: var(--paper-soft); box-shadow: none; }
+.btn:focus-visible, .chip:focus-visible, .level:focus-visible, .ans:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.chip {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border: 2px solid var(--ui-soft);
+  background: transparent;
+  color: var(--ui-ink);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--lantern); color: var(--lantern-ink); border-color: var(--lantern); }
+
+/* cielo stellato */
+#title::before, #field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .7;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, #fff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 33% 8%, #fff 98%, transparent),
+    radial-gradient(2px 2px at 58% 22%, #fff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 81% 12%, #fff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 92% 30%, #fff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 6% 44%, #fff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 45% 40%, #fff 98%, transparent),
+    radial-gradient(2px 2px at 70% 48%, #fff 98%, transparent);
+}
+
+/* villaggio (svg) */
+.village svg, #ground svg { width: 100%; height: 100%; display: block; }
+.vh { fill: var(--house); }
+.vr { fill: var(--roof); }
+.vg { fill: var(--ground); }
+.win { fill: var(--lantern); }
+
+/* titolo */
+#title { --v-h: clamp(90px, 22vh, 170px); background: linear-gradient(180deg, var(--night-1), var(--night-2) 55%, var(--night-3)); overflow: hidden; }
+.title-main {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; text-align: center; padding: 24px 20px calc(var(--v-h) + 8px); position: relative; z-index: 1;
+}
+.logo {
+  font-family: "Arial Black", Arial, Helvetica, sans-serif; font-weight: 900; margin: 0; line-height: 1.15;
+  font-size: clamp(32px, 8vw, 58px); color: var(--lantern); max-width: 12em;
+  text-shadow: 0 4px 0 #6b3d00, 0 8px 0 var(--frame);
+}
+.tagline { margin: 0; font-size: 20px; color: var(--ui-soft); max-width: 24em; }
+#village-title { position: absolute; left: 0; right: 0; bottom: 0; height: var(--v-h); }
+#title .win { opacity: 0; animation: lit .4s steps(2) forwards; animation-delay: calc(var(--i) * 160ms + 400ms); }
+@keyframes lit { to { opacity: 1; } }
+#ground .win { opacity: .9; }
+
+/* mappa */
+#map { background: var(--night-1); padding: 18px 16px 12px; gap: 12px; }
+.hdr h2 { color: var(--lantern); font-size: 28px; margin: 0; line-height: 1.3; }
+.hdr p { color: var(--ui-soft); margin: 4px 0 0; font-size: 17px; }
+.levels { display: grid; gap: 12px; overflow: auto; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); align-content: start; flex: 1; min-height: 0; padding: 4px 2px 8px; }
+.level {
+  text-align: left; background: var(--night-2); border: 3px solid var(--night-3); border-radius: 8px;
+  padding: 12px 14px; display: flex; gap: 12px; cursor: pointer; color: var(--ui-ink);
+}
+.level .num { font-size: 30px; font-weight: 700; color: var(--lantern); min-width: 30px; line-height: 1.2; }
+.level .nm { font-size: 19px; font-weight: 700; display: block; }
+.level .fg { font-size: 16px; color: var(--ui-soft); display: block; margin-top: 2px; }
+.level .st { font-size: 16px; display: block; margin-top: 6px; color: var(--lantern); font-weight: 700; }
+.level.open { border-color: var(--lantern); }
+.level.locked { opacity: .65; cursor: default; }
+.level.locked .st { color: var(--ui-soft); font-weight: 400; }
+.settings { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.settings span { color: var(--ui-soft); font-size: 16px; }
+
+/* saggi */
+#sages { background: linear-gradient(180deg, var(--night-1), var(--night-2)); padding: 14px 16px 12px; gap: 10px; }
+.sage-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.dots i { width: 10px; height: 10px; background: var(--night-3); border: 2px solid var(--frame); display: block; }
+.dots i.on { background: var(--lantern); }
+.stage { flex: 1; min-height: 0; display: flex; gap: 14px; align-items: flex-start; overflow: auto; padding: 2px 2px 8px; }
+.sprites { display: flex; gap: 8px; flex: 0 0 auto; width: clamp(80px, 18vw, 116px); }
+.sprites.two { width: clamp(150px, 30vw, 210px); }
+.sprites.many { width: clamp(160px, 32vw, 230px); flex-wrap: wrap; }
+.sprites.many figure { flex: 0 0 calc(50% - 4px); }
+.sprites figure { margin: 0; flex: 1; text-align: center; }
+.sprites figcaption { font-size: 16px; color: var(--ui-soft); margin-top: 4px; line-height: 1.3; }
+.sprites svg { width: 100%; height: auto; display: block; }
+.bubble { flex: 1; min-width: 0; background: var(--paper); color: var(--paper-ink); border: 3px solid var(--frame); border-radius: 8px; padding: 16px 18px; box-shadow: 0 5px 0 var(--frame); }
+.bubble h2 { font-size: 22px; margin: 0 0 10px; line-height: 1.3; }
+.bubble p { font-size: 18px; margin: 0 0 12px; max-width: 62ch; }
+.bubble ul { margin: 0 0 10px; padding-left: 22px; font-size: 18px; }
+.bubble li { margin-bottom: 8px; }
+.ex { border-left: 5px solid var(--night-3); padding: 4px 0 4px 12px; margin: 0 0 14px; }
+.ex .v { font-size: 19px; }
+.ex .f { font-size: 16px; color: var(--paper-soft); margin-top: 2px; }
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.vs div { border: 3px solid var(--frame); border-radius: 6px; padding: 10px 12px; font-size: 17px; }
+.vs b { display: block; font-size: 18px; margin-bottom: 4px; }
+.sage-nav { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+@media (max-width: 560px) {
+  .stage { flex-direction: column; align-items: stretch; }
+  .sprites { width: 84px; align-self: center; }
+  .sprites.two { width: 170px; }
+  .sprites.many { width: 200px; }
+  .vs { grid-template-columns: 1fr; }
+}
+
+/* gioco */
+#play { background: var(--night-1); }
+#hud { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: var(--frame); color: var(--ui-ink); }
+.hud-left { min-width: 120px; flex: 1; }
+.score { font-size: 18px; font-weight: 700; line-height: 1.3; }
+.goal { height: 10px; background: var(--night-1); border: 2px solid var(--ui-soft); margin: 2px 0; }
+.goal i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.goal-t { font-size: 16px; color: var(--ui-soft); line-height: 1.3; }
+.hud-mid { text-align: center; line-height: 1.3; flex: 1; }
+.hud-mid b { display: block; font-size: 18px; color: var(--lantern); }
+.hud-mid span { font-size: 16px; color: var(--ui-soft); }
+.hud-right { flex: 1; display: flex; justify-content: flex-end; }
+#bossbar { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: #1c1450; color: var(--ui-ink); font-size: 16px; font-weight: 700; }
+#boss-sprite { width: 34px; flex: 0 0 auto; }
+#boss-sprite svg { width: 100%; height: auto; display: block; }
+.hp { flex: 1; height: 14px; background: var(--frame); border: 2px solid var(--ui-soft); }
+.hp i { display: block; height: 100%; background: var(--bad); width: 100%; transition: width .3s; }
+#field { flex: 1; min-height: 120px; position: relative; overflow: hidden; background: linear-gradient(180deg, var(--night-1), var(--night-2) 70%, var(--night-3)); }
+#ground { position: absolute; left: 0; right: 0; bottom: 0; height: var(--ground-h); pointer-events: none; }
+.deadline { position: absolute; left: 0; right: 0; bottom: calc(var(--ground-h) - 6px); border-top: 2px dashed rgba(255, 176, 46, .55); pointer-events: none; }
+.card {
+  position: absolute; left: 50%; top: 0; width: min(94%, 600px);
+  background: var(--paper); color: var(--paper-ink);
+  border: 3px solid var(--frame); border-radius: 8px; padding: 12px 18px; text-align: left;
+  box-shadow: 0 5px 0 var(--frame); will-change: transform;
+}
+.card.target { outline: 3px solid var(--lantern); outline-offset: 2px; }
+.card.ok { outline: 4px solid var(--ok); opacity: 0; transition: opacity .35s; }
+.card.bad { outline: 4px solid var(--bad); opacity: 0; transition: opacity .35s; }
+.card .verse { font-size: clamp(18px, 3.4vw, 22px); line-height: 1.5; font-weight: 400; }
+.card .trad { font-size: clamp(16px, 2.8vw, 18px); color: var(--paper-soft); margin-top: 6px; }
+.card .src { font-size: 16px; color: var(--paper-soft); margin-top: 6px; }
+.pop { position: absolute; left: 50%; font-weight: 700; color: var(--ok); font-size: 24px; pointer-events: none; text-shadow: 0 2px 0 var(--frame); animation: rise .8s forwards; z-index: 3; }
+@keyframes rise { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -40px); opacity: 0; } }
+#explain { background: var(--frame); color: var(--ui-ink); padding: 8px 14px; font-size: 17px; min-height: 4.8em; max-height: 6.6em; overflow: auto; }
+#explain strong { margin-right: 6px; padding: 1px 8px; border-radius: 4px; }
+#answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px 14px 14px; background: var(--frame); }
+.ans { font-weight: 700; font-size: clamp(18px, 4.4vw, 22px); border: 3px solid var(--frame); border-radius: 8px; padding: 12px 8px; cursor: pointer; }
+.ans small { display: block; font-size: 16px; font-weight: 400; margin-top: 2px; }
+.ans.c0 { background: var(--c0); color: var(--c0-ink); box-shadow: 0 6px 0 var(--c0-sh); }
+.ans.c1 { background: var(--c1); color: var(--c1-ink); box-shadow: 0 6px 0 var(--c1-sh); }
+.ans.c2 { background: var(--c2); color: var(--c2-ink); box-shadow: 0 6px 0 var(--c2-sh); }
+.ans.c3 { background: var(--c3); color: var(--c3-ink); box-shadow: 0 6px 0 var(--c3-sh); }
+.ans:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--frame); }
+.banner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5; background: rgba(11, 10, 36, .55); text-align: center; padding: 16px; }
+.banner h2 { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-size: clamp(34px, 9vw, 60px); margin: 0; line-height: 1.2; color: var(--lantern); text-shadow: 0 4px 0 #6b3d00, 0 8px 0 var(--frame); }
+.banner p { font-size: clamp(18px, 3.6vw, 24px); margin: 8px 0 0; color: var(--ui-ink); max-width: 20em; }
+.overlay { position: absolute; inset: 0; background: rgba(11, 10, 36, .9); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.panel { background: var(--paper); color: var(--paper-ink); border: 3px solid var(--frame); border-radius: 8px; padding: 18px 20px; max-width: 600px; width: 100%; max-height: 100%; overflow: auto; box-shadow: 0 6px 0 var(--frame); }
+.panel h2 { font-size: 26px; margin: 0 0 4px; line-height: 1.3; }
+.panel .sub { margin: 0 0 10px; font-size: 18px; color: var(--paper-soft); }
+.panel p { font-size: 18px; margin: 8px 0; }
+.badge { display: inline-block; font-weight: 700; padding: 2px 10px; border-radius: 4px; border: 2px solid var(--frame); font-size: 17px; }
+.panel .verse { font-size: 21px; margin: 12px 0 4px; }
+.panel .trad { color: var(--paper-soft); font-size: 17px; margin: 0 0 4px; }
+.panel .src { font-size: 16px; color: var(--paper-soft); margin: 0 0 8px; }
+.panel .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.stars { font-size: 34px; color: var(--lantern-ink); letter-spacing: 4px; line-height: 1.3; }
+.stat { display: flex; justify-content: space-between; border-bottom: 2px dotted var(--paper-soft); padding: 4px 0; font-size: 18px; }
+.review { margin-top: 12px; }
+.review h3 { font-size: 19px; margin: 0 0 6px; }
+.review .it { border-left: 5px solid var(--night-3); padding: 2px 0 2px 10px; margin: 0 0 10px; }
+.review .it .v { font-size: 18px; }
+.review .it .e { font-size: 16px; color: var(--paper-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  #title .win { opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+<div class="cabinet" id="app">
+
+  <section id="title" class="screen active" aria-labelledby="logo">
+    <div class="title-main">
+      <h1 class="logo" id="logo">Il Villaggio delle Figure Retoriche</h1>
+      <p class="tagline">Un gioco arcade per allenare l’occhio e l’orecchio da poeta.</p>
+      <button class="btn big" id="btn-enter">Entra nel villaggio</button>
+    </div>
+    <div class="village" id="village-title"></div>
+  </section>
+
+  <section id="map" class="screen" aria-labelledby="map-h">
+    <div class="hdr">
+      <h2 id="map-h">Mappa del villaggio</h2>
+      <p>Raggiungi il punteggio obiettivo di un livello per aprire il successivo.</p>
+    </div>
+    <div class="levels" id="levels"></div>
+    <div class="settings">
+      <span>Impostazioni:</span>
+      <button class="chip t-calm" aria-pressed="false">Ritmo: normale</button>
+      <button class="chip t-sound" aria-pressed="false">Suoni: no</button>
+      <button class="chip t-teacher" aria-pressed="false">Docente: no</button>
+    </div>
+  </section>
+
+  <section id="sages" class="screen" aria-label="Lezione dei saggi">
+    <div class="sage-top">
+      <button class="chip" id="btn-sages-map">Mappa</button>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <button class="chip" id="btn-skip">Salta le lezioni</button>
+    </div>
+    <div class="stage">
+      <div class="sprites" id="sprites"></div>
+      <div class="bubble" id="bubble" aria-live="polite"></div>
+    </div>
+    <div class="sage-nav">
+      <button class="btn ghost" id="btn-prev">Indietro</button>
+      <button class="btn" id="btn-next">Avanti</button>
+    </div>
+  </section>
+
+  <section id="play" class="screen" aria-label="Gioco">
+    <div id="hud">
+      <div class="hud-left">
+        <div class="score" id="score">0 punti</div>
+        <div class="goal" aria-hidden="true"><i id="goal-bar"></i></div>
+        <div class="goal-t" id="goal-t">Obiettivo 0</div>
+      </div>
+      <div class="hud-mid"><b id="wave-label">Pronti</b><span id="progress">Frase 1 di 1</span></div>
+      <div class="hud-right"><button class="chip" id="btn-pause">Pausa</button></div>
+    </div>
+    <div id="bossbar" hidden>
+      <span id="boss-sprite"></span><span id="boss-name">Guardiano</span>
+      <div class="hp"><i id="boss-hp"></i></div>
+    </div>
+    <div id="field">
+      <div class="deadline"></div>
+      <div id="ground"></div>
+      <div class="banner" id="banner" hidden><div><h2 id="banner-title"></h2><p id="banner-sub"></p></div></div>
+    </div>
+    <div id="explain" aria-live="polite"></div>
+    <div id="answers"></div>
+
+    <div class="overlay" id="feedback" role="dialog" aria-modal="true" aria-labelledby="fb-title" hidden>
+      <div class="panel">
+        <h2 id="fb-title"></h2>
+        <p class="sub" id="fb-sub"></p>
+        <span class="badge" id="fb-badge"></span>
+        <div class="verse" id="fb-verse"></div>
+        <p class="trad" id="fb-trad"></p>
+        <p class="src" id="fb-src"></p>
+        <p id="fb-spieg"></p>
+        <div class="actions"><button class="btn" id="fb-btn">Continua</button></div>
+      </div>
+    </div>
+    <div class="overlay" id="pausebox" role="dialog" aria-modal="true" aria-labelledby="pause-t" hidden>
+      <div class="panel">
+        <h2 id="pause-t">Pausa</h2>
+        <p>Il villaggio aspetta. Quando sei pronto, riprendi.</p>
+        <div class="actions">
+          <button class="btn" id="btn-resume">Riprendi</button>
+          <button class="btn dark" id="btn-quit">Esci alla mappa</button>
+        </div>
+      </div>
+    </div>
+    <div class="overlay" id="end" role="dialog" aria-modal="true" aria-labelledby="end-t" hidden></div>
+  </section>
+
+</div>
+
+<script>
+var FIG = {
+  allitterazione: { nome: "Allitterazione", sage: "Saggia Allitterazione",
+    def: ["**L’allitterazione** è la ripetizione dello stesso suono, o degli stessi suoni, all’inizio o all’interno di parole vicine."],
+    intro: "Guarda le parti evidenziate: sono i suoni che ritornano.",
+    esempi: [
+      { v: "[V]eni, [v]idi, [v]ici", f: "Giulio Cesare" },
+      { v: "Il [tr]oppo s[tr]oppia", f: "Proverbio" },
+      { v: "Tra i campi [f]ioriti, la [f]ata [f]ece [f]iorire un [f]iore [f]antastico", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Pensa a uno scioglilingua: la stessa lettera torna e ritorna. Il poeta fa lo stesso, ma con uno scopo: dare un ritmo al verso, creare un’atmosfera o far sentire un suono.",
+      "Per riconoscerla non devi cercare un rumore: devi **guardare le parole** e chiederti «c’è una lettera, o un gruppo di lettere, che ritorna?»."
+    ] },
+  onomatopea: { nome: "Onomatopea", sage: "Saggio Onomatopea",
+    def: [
+      "**L’onomatopea** è la riproduzione, con i suoni delle parole, di un rumore prodotto da un oggetto, da un fenomeno naturale o da un animale.",
+      "È **propria** quando la parola è solo un suono, senza un significato suo («toc toc», «cip cip»). È **impropria** quando la parola esiste e ha un significato, ma il suo suono ricorda il rumore («gorgogliare», «ronzare»)."
+    ],
+    intro: "Guarda le parti evidenziate: sono le parole che imitano un rumore.",
+    esempi: [
+      { v: "[Toc toc]! Qualcuno bussa alla porta", f: "Onomatopea propria" },
+      { v: "[Cip cip], cantano gli uccellini", f: "Onomatopea propria" },
+      { v: "Il ruscello [gorgogliava] tra i sassi", f: "Onomatopea impropria" },
+      { v: "Le api [ronzavano] sui fiori", f: "Onomatopea impropria" }
+    ],
+    semplice: [
+      "L’onomatopea si **ascolta**: leggi il verso ad alta voce e chiediti «questo fa un rumore?». Se dentro le parole senti una porta che bussa, un animale, una goccia o un tuono, è un’onomatopea.",
+      "La differenza con l’allitterazione? Nell’onomatopea le parole imitano un rumore vero. Nell’allitterazione le lettere si ripetono per dare ritmo o atmosfera."
+    ] },
+  chiasmo: { nome: "Chiasmo", sage: "Il Saggio Chiasmo",
+    def: ["**Il chiasmo** è una disposizione incrociata di elementi, che risultano così speculari secondo lo schema **AB BA**."],
+    intro: "Guarda le parti evidenziate e l’ordine in cui si incrociano.",
+    esempi: [
+      { v: "[Ovidio] è ’l [terzo], e l’[ultimo] [Lucano]", f: "Dante, Inferno IV. Schema: Ovidio (A) terzo (B) / ultimo (B) Lucano (A)" },
+      { v: "Chi ha [pane] non ha [denti], e chi ha [denti] non ha [fame]", f: "Proverbio. Schema: pane (A) denti (B) / denti (B) fame (A)" },
+      { v: "Il [giorno] cede alla [notte], la [notte] insegue il [giorno]", f: "Frase d’esempio. Schema: giorno (A) notte (B) / notte (B) giorno (A)" }
+    ],
+    semplice: [
+      "Immagina uno specchio: prima vengono due elementi, poi gli stessi due tornano al contrario. Le parole si incrociano come le gambe di una X.",
+      "Per riconoscerlo guarda **la forma**: c’è un ordine che si capovolge a metà frase?"
+    ] },
+  climax: { nome: "Climax", sage: "Il Saggio Climax",
+    def: ["**Il climax** è una successione di elementi disposti in ordine di intensità crescente (climax crescente) o decrescente (climax decrescente)."],
+    intro: "Guarda le parole evidenziate: ognuna è più forte, o più debole, della precedente.",
+    esempi: [
+      { v: "Il quadro clinico era [preoccupante], [grave], [disperato]", f: "Frase d’esempio" },
+      { v: "Se non vuoi arrivare tardi devi [correre], [pedalare], [volare]!", f: "Frase d’esempio" },
+      { v: "Quivi [sospiri], [pianti] e alti [guai]", f: "Dante, Inferno III" }
+    ],
+    semplice: [
+      "Pensa a una scala: ogni parola è un gradino più in alto (o più in basso) della precedente. La forza delle parole cresce, o cala, passo dopo passo.",
+      "Per riconoscerlo guarda **la forza**: ogni termine è più intenso del precedente? Un semplice elenco non basta: ci vuole la scala."
+    ] },
+  anastrofe: { nome: "Anastrofe", sage: "Saggia Anastrofe",
+    def: ["**L’anastrofe** è l’inversione dell’ordine abituale degli elementi di una frase."],
+    intro: "Guarda le parti evidenziate: sono le parole spostate rispetto all’ordine normale.",
+    esempi: [
+      { v: "[Sempre caro mi fu] quest’ermo colle", f: "Giacomo Leopardi, L’infinito" },
+      { v: "[Dolce e chiara è] la notte e senza vento", f: "Giacomo Leopardi, La sera del dì di festa" },
+      { v: "[Bella è] questa giornata di sole", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Di solito diciamo prima chi fa l’azione, poi l’azione, poi il resto. Nell’anastrofe l’ordine è sottosopra, per mettere in risalto una parola.",
+      "Per riconoscerla chiediti: come lo direi di solito? Se l’ordine cambia, è anastrofe."
+    ] },
+  anafora: { nome: "Anafora", sage: "Saggia Anafora",
+    def: ["**L’anafora** è la ripetizione di una o più parole all’inizio di versi, strofe o frasi consecutive."],
+    intro: "Guarda le parti evidenziate: sono le parole che ritornano all’inizio.",
+    esempi: [
+      { v: "[perché] non siam popolo,\n[perché] siam divisi", f: "Goffredo Mameli, Il canto degli Italiani" },
+      { v: "[Amor], ch’a nullo amato amar perdona,\n[Amor], ch’al cor gentil ratto s’apprende,\n[Amor] condusse noi ad una morte", f: "Dante, Inferno V" },
+      { v: "[Ogni giorno] una paura, [ogni giorno] una speranza", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "È come un ritornello: la stessa parola torna all’inizio di più frasi o versi, per martellare un’idea.",
+      "Per riconoscerla **guarda l’inizio**: la stessa parola apre più versi o più frasi di seguito?"
+    ] },
+  antitesi: { nome: "Antitesi", sage: "Saggia Antitesi",
+    def: ["**L’antitesi** è l’accostamento di espressioni di significato opposto."],
+    intro: "Guarda le parti evidenziate: sono le idee opposte.",
+    esempi: [
+      { v: "[Amo] il sole che splende, [odio] il freddo che gela", f: "Frase d’esempio" },
+      { v: "Il Signore [dà] e il Signore [toglie]", f: "Proverbio" },
+      { v: "[Fuori] il silenzio, [dentro] la tempesta", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "L’antitesi mette a confronto due idee opposte per farle risaltare, come il bianco e il nero. Le due idee stanno in parti diverse della frase.",
+      "Per riconoscerla chiediti: ci sono due cose opposte messe a confronto, una di qua e una di là?"
+    ] },
+  ossimoro: { nome: "Ossimoro", sage: "Il Saggio Ossimoro",
+    def: ["**L’ossimoro** è una forma particolare di antitesi: nella stessa espressione si accostano parole di significato opposto, che sembrano escludersi l’una con l’altra."],
+    intro: "Guarda le espressioni evidenziate: dentro ci sono due parole che si contraddicono.",
+    esempi: [
+      { v: "[convergenze parallele]", f: "Espressione celebre" },
+      { v: "[Affrettati lentamente]", f: "Motto latino, festina lente" },
+      { v: "un [piccolo gigante]", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Nell’ossimoro i due contrari stanno **insieme, dentro la stessa espressione**, come se si scontrassero: una «luce scura» non può esistere, eppure l’espressione la dice.",
+      "Per distinguerlo dall’antitesi: nell’antitesi i contrari stanno in parti diverse della frase; nell’ossimoro sono fusi in un’unica espressione."
+    ] },
+  iperbole: { nome: "Iperbole", sage: "Saggia Iperbole",
+    def: ["**L’iperbole** è un’espressione volutamente esagerata."],
+    intro: "Guarda le parti evidenziate: sono le espressioni esagerate.",
+    esempi: [
+      { v: "Sto [morendo di sonno]", f: "Frase d’esempio" },
+      { v: "Ti ho cercato [in tutto il mondo]", f: "Frase d’esempio" },
+      { v: "Una [montagna] di compiti", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Quando esageri per far capire che qualcosa è tantissimo, grande o intenso, fai un’iperbole. Nessuno la prende alla lettera.",
+      "Per riconoscerla chiediti: sto dicendo **di più** del vero?"
+    ] },
+  litote: { nome: "Litote", sage: "Saggia Litote",
+    def: ["**La litote** consiste nel dire una cosa negando il suo contrario. Spesso si dice di meno di quello che si pensa."],
+    intro: "Guarda le parti evidenziate: si nega il contrario di quello che si vuole dire.",
+    esempi: [
+      { v: "[Non è una cattiva idea]", f: "Frase d’esempio, cioè è una buona idea" },
+      { v: "[Non mi dispiace]", f: "Frase d’esempio, cioè mi piace" },
+      { v: "Quella ragazza [non è brutta]", f: "Frase d’esempio, cioè è carina" }
+    ],
+    semplice: [
+      "Invece di dire «è bello» dici «non è brutto»: neghi il contrario. L’effetto è più delicato, a volte ironico.",
+      "Per riconoscerla chiediti: sto dicendo **di meno** del vero, negando il contrario? Attenzione: non ogni frase con «non» è una litote."
+    ] },
+  personificazione: { nome: "Personificazione", sage: "Saggia Personificazione",
+    def: ["**La personificazione** è l’attribuzione a oggetti, idee, animali e sentimenti di caratteristiche umane."],
+    intro: "Guarda le parole evidenziate: sono azioni che farebbe una persona.",
+    esempi: [
+      { v: "La luna [sorrideva] dietro le nuvole", f: "Frase d’esempio" },
+      { v: "L’albero ci [salutò] agitando i rami", f: "Frase d’esempio" },
+      { v: "La notte ci [abbracciò]", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Quando una cosa o un animale parla, sorride, dorme o piange come una persona, hai una personificazione.",
+      "Per riconoscerla chiediti: **chi fa** l’azione? È una cosa che fa ciò che fanno solo le persone?"
+    ] },
+  perifrasi: { nome: "Perifrasi", sage: "Saggia Perifrasi",
+    def: ["**La perifrasi** è l’indicazione di un concetto in modo indiretto, attraverso una circonlocuzione, cioè un giro di parole."],
+    intro: "Guarda le espressioni evidenziate: sono giri di parole al posto di un nome.",
+    esempi: [
+      { v: "[Passare a miglior vita]", f: "Perifrasi per «morire»" },
+      { v: "[Oro nero]", f: "Perifrasi per «petrolio»" },
+      { v: "[La città della Madonnina]", f: "Perifrasi per «Milano»" }
+    ],
+    semplice: [
+      "Invece di dire il nome giri intorno con più parole: «la mia dolce metà» invece di «mia moglie».",
+      "Per riconoscerla chiediti: **che cosa c’è nascosto** dietro queste parole? Se puoi sostituire il giro di parole con un nome solo, è perifrasi."
+    ] },
+  metafora: { nome: "Metafora", sage: "Saggia Metafora",
+    def: ["**La metafora** è l’accostamento di due elementi legati da un rapporto di somiglianza, senza che questo rapporto sia esplicitato. Per questo è detta anche «similitudine abbreviata»."],
+    intro: "Guarda le parti evidenziate: una cosa viene chiamata con il nome di un’altra.",
+    esempi: [
+      { v: "Il mare [è un tappeto blu] che si stende fino all’orizzonte", f: "Frase d’esempio" },
+      { v: "Ho perso il [filo] dei miei pensieri", f: "Frase d’esempio" },
+      { v: "Quel ragazzo [è una roccia]", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Dici che una cosa «è» un’altra: «sei un tesoro». Non c’è «come»: il paragone resta nascosto.",
+      "Per riconoscerla chiediti: A **è** B (o A viene chiamata B) senza «come»?"
+    ] },
+  similitudine: { nome: "Similitudine", sage: "Saggia Similitudine",
+    def: ["**La similitudine** è un paragone esplicito tra due elementi del discorso, collegati tra loro da chiari nessi logici di raccordo («come», «quale», «simile a»)."],
+    intro: "Guarda le parti evidenziate: sono le parole che collegano il paragone.",
+    esempi: [
+      { v: "Era dolce [come] il miele e luminoso [come] un raggio di sole", f: "Frase d’esempio" },
+      { v: "Le parole scivolano dolcemente [come] l’acqua tra le mani", f: "Frase d’esempio" },
+      { v: "Corre veloce [come] il vento", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Dici apertamente che una cosa assomiglia a un’altra, usando una parolina di raccordo.",
+      "Per riconoscerla cerca il raccordo: **come, quale, simile a**."
+    ] },
+  metonimia: { nome: "Metonimia", sage: "Saggia Metonimia",
+    def: [
+      "**La metonimia** è il trasferimento di significato tra due termini legati da un rapporto logico: autore per opera, contenitore per contenuto, materia per oggetto, causa per effetto, luogo per prodotto o per istituzione.",
+      "Qualsiasi collegamento logico che **non** sia «la parte per il tutto» è una metonimia."
+    ],
+    intro: "Guarda le parole evidenziate: stanno al posto di un’altra cosa a cui sono legate.",
+    esempi: [
+      { v: "Ho letto [Dante] tutto d’un fiato", f: "Autore per opera" },
+      { v: "Stasera apriamo una bottiglia di [Barolo]", f: "Luogo per prodotto" },
+      { v: "Il [Quirinale] ha emesso un comunicato", f: "Sede per istituzione" }
+    ],
+    semplice: [
+      "Al posto della cosa dici qualcosa che le sta accanto, che le appartiene o da cui deriva: l’autore al posto dei libri, il luogo al posto del vino.",
+      "Per riconoscerla chiediti: c’è un legame logico (autore, contenitore, materia, luogo…) che **non** è una parte dell’oggetto?"
+    ] },
+  sineddoche: { nome: "Sineddoche", sage: "Saggia Sineddoche",
+    def: ["**La sineddoche** indica una cosa attraverso un’altra che ha con la prima un rapporto di quantità: è **la parte per il tutto**, e niente altro."],
+    intro: "Guarda le parole evidenziate: sono una parte che sta al posto dell’intero.",
+    esempi: [
+      { v: "Cento [teste] di bestiame pascolavano nel prato", f: "Frase d’esempio" },
+      { v: "Una [chioma] bionda attraversò la sala", f: "Frase d’esempio" },
+      { v: "Dieci [braccia] lavoravano nei campi", f: "Frase d’esempio" }
+    ],
+    semplice: [
+      "Nomini una parte e intendi tutto l’insieme: «una vela» per «una nave». Se il pezzo nominato è davvero una parte di ciò che intendi, è sineddoche.",
+      "Per riconoscerla chiediti: la parola nominata è **un pezzo** dell’intero? Se il legame è un altro (autore, materia, contenitore…), è metonimia."
+    ] }
+};
+
+var LEVELS = [
+  { id: 1, nome: "La Piazza dei Suoni", boss: "Guardiano dei Suoni", fig: ["allitterazione", "onomatopea"], perFig: 0,
+    trick: { vs: [
+      { fig: "allitterazione", t: "si guarda", d: "Ritorna la stessa lettera, o lo stesso gruppo di suoni, in parole vicine." },
+      { fig: "onomatopea", t: "si ascolta", d: "Una parola, anche inventata, imita un rumore." } ],
+      note: "Attenzione: in un’onomatopea possono tornare anche delle lettere («clic clac»). Se le parole imitano un rumore, vince l’onomatopea." } },
+  { id: 2, nome: "La Scalinata degli Specchi", boss: "Guardiano delle Scale", fig: ["chiasmo", "climax"], perFig: 8,
+    trick: { vs: [
+      { fig: "chiasmo", t: "si guarda la forma", d: "Gli elementi si incrociano come in uno specchio: A B / B A." },
+      { fig: "climax", t: "si guarda la forza", d: "Le parole crescono, o calano, di intensità, come i gradini di una scala." } ],
+      note: "Attenzione: un semplice elenco non è un climax e non è un chiasmo. Nel chiasmo serve l’incrocio, nel climax serve la scala." } },
+  { id: 3, nome: "La Bottega dell’Ordine", boss: "Guardiano del Ritornello", fig: ["anastrofe", "anafora"], perFig: 8,
+    trick: { vs: [
+      { fig: "anastrofe", t: "si guarda l’ordine", d: "Le parole sono in un ordine insolito, sottosopra." },
+      { fig: "anafora", t: "si guarda l’inizio", d: "La stessa parola, o espressione, apre più versi o frasi di seguito." } ],
+      note: "Attenzione: una parola può tornare anche in mezzo alla frase senza che sia anafora. L’anafora è la ripetizione all’inizio." } },
+  { id: 4, nome: "La Torre dei Contrari", boss: "Guardiano dei Contrari", fig: ["antitesi", "ossimoro"], perFig: 7,
+    trick: { vs: [
+      { fig: "antitesi", t: "contrari separati", d: "Due idee opposte stanno in parti diverse della frase: «ieri allegro, oggi triste»." },
+      { fig: "ossimoro", t: "contrari fusi", d: "Due parole opposte stanno nella stessa espressione: «luce scura»." } ],
+      note: "Domanda trucco: i contrari sono separati (antitesi) oppure fusi insieme (ossimoro)?" } },
+  { id: 5, nome: "Il Mercato degli Estremi", boss: "Guardiano degli Estremi", fig: ["iperbole", "litote"], perFig: 8,
+    trick: { vs: [
+      { fig: "iperbole", t: "dice di più", d: "Esagera: «ho cento cose da fare»." },
+      { fig: "litote", t: "dice di meno", d: "Nega il contrario: «non è facile» per dire «è difficile»." } ],
+      note: "Attenzione: anche alcune iperboli contengono «non» («non ti vedo da secoli»). La domanda giusta è: sto esagerando o sto attenuando?" } },
+  { id: 6, nome: "Il Teatro delle Maschere", boss: "Guardiano delle Maschere", fig: ["personificazione", "perifrasi"], perFig: 7,
+    trick: { vs: [
+      { fig: "personificazione", t: "una cosa agisce da persona", d: "Un oggetto o un animale fa ciò che fanno le persone: «la sedia mi guardava»." },
+      { fig: "perifrasi", t: "un giro di parole", d: "Più parole al posto di un nome: «la città della Madonnina» per Milano." } ],
+      note: "Domanda trucco: posso sostituire tutto con un nome solo (perifrasi)? Oppure una cosa compie un’azione umana (personificazione)?" } },
+  { id: 7, nome: "Il Castello del Gran Boss", boss: "Gran Guardiano", fig: ["metafora", "similitudine", "metonimia", "sineddoche"], perFig: 5,
+    trick: { vs: [
+      { fig: "metafora", t: "A è B", d: "Un paragone senza «come»: «sei un tesoro»." },
+      { fig: "similitudine", t: "A come B", d: "Un paragone con «come», «quale» o «simile a»." },
+      { fig: "metonimia", t: "scambio per un legame logico", d: "Autore, materia, contenitore, luogo… al posto della cosa." },
+      { fig: "sineddoche", t: "la parte per il tutto", d: "Una parte dell’oggetto al posto dell’oggetto intero." } ],
+      note: "Regola dei saggi: tutto ciò che è parte per il tutto è sineddoche. Qualsiasi altro collegamento logico è metonimia." } }
+];
+
+/* l = livello, f = figura, d = difficoltà (1 facile ... 5 difficile), t = testo, s = fonte, x = traduzione, e = spiegazione */
+var ITEMS_1 = [
+  /* ---------- Livello 1: allitterazione e onomatopea ---------- */
+  { l: 1, f: "allitterazione", d: 1, t: "A[p]elle figlio di A[p]ollo\nfece una [p]alla di [p]elle di [p]ollo", s: "Scioglilingua",
+    e: "Il suono P torna in «Apelle», «Apollo», «palla», «pelle», «pollo»: le parole vicine si somigliano e la frase diventa quasi uno scioglilingua." },
+  { l: 1, f: "allitterazione", d: 1, t: "[Tr]e [t]igri con[tr]o [tr]e [t]igri", s: "Scioglilingua",
+    e: "Ritorna il suono T, con il gruppo TR: «tre», «tigri», «contro». È il classico scioglilingua costruito sulla ripetizione." },
+  { l: 1, f: "onomatopea", d: 1, t: "[Tic tac, tic tac]:\nl’orologio non si fermava mai", s: "Frase d’esempio",
+    e: "«Tic tac» imita il rumore dell’orologio: è una parola nata per far sentire un suono (onomatopea propria)." },
+  { l: 1, f: "onomatopea", d: 1, t: "[Sbam]! La porta si chiuse di colpo", s: "Frase d’esempio",
+    e: "«Sbam» imita il colpo secco della porta che sbatte: onomatopea propria." },
+  { l: 1, f: "onomatopea", d: 2, t: "veniva una voce dai campi:\n[chiù]…", s: "Giovanni Pascoli, L’assiuolo",
+    e: "«Chiù» è il verso dell’assiolo, un uccello notturno: il poeta lo scrive come lo sente (onomatopea propria)." },
+  { l: 1, f: "allitterazione", d: 3, t: "di [m]e [m]edesimo [m]eco [m]i vergogno", s: "Francesco Petrarca, Canzoniere I",
+    e: "Si ripete il suono M in «me», «medesimo», «meco», «mi»: il poeta insiste su se stesso e sulla sua vergogna." },
+  { l: 1, f: "allitterazione", d: 3, t: "il [p]ietoso [p]astor [p]ianse al suo [p]ianto", s: "Torquato Tasso, Gerusalemme liberata, canto VII",
+    e: "Torna il suono P in «pietoso», «pastor», «pianse», «pianto»: quattro parole vicine che iniziano allo stesso modo." },
+  { l: 1, f: "onomatopea", d: 4, t: "con un [crepitío] che dura", s: "Gabriele D’Annunzio, La pioggia nel pineto",
+    e: "«Crepitío» è il rumore secco e fitto della pioggia sulle foglie. La parola esiste, ma il suo suono imita il rumore: onomatopea impropria." },
+  { l: 1, f: "onomatopea", d: 4, t: "un [bubbolìo] lontano…", s: "Giovanni Pascoli, Temporale",
+    e: "«Bubbolìo» richiama il brontolio sordo e lontano del tuono. La parola esiste, ma il suo suono imita il rumore: onomatopea impropria." },
+  { l: 1, f: "onomatopea", d: 4, t: "lo [sciabordare] delle lavandare\ncon [tonfi] spessi e lunghe cantilene", s: "Giovanni Pascoli, Lavandare",
+    e: "«Sciabordare» e «tonfi» sono parole che esistono, ma il loro suono ricorda i panni battuti nell’acqua: onomatopea impropria." },
+  { l: 1, f: "allitterazione", d: 4, t: "quello spi[r]to gue[rr]ier ch’ent[r]o mi [r]ugge", s: "Ugo Foscolo, Alla sera",
+    e: "Ritorna il suono R in «spirto», «guerrier», «entro», «rugge»: quattro parole vicine in cui si ripete lo stesso suono." },
+  { l: 1, f: "allitterazione", d: 4, t: "O [T]ite [t]ute [T]ati, [t]ibi [t]anta, [t]yranne, [t]ulisti", s: "Quinto Ennio, Annales",
+    x: "O Tito Tazio, tiranno, quante sventure ti sei attirato!",
+    e: "Quasi ogni parola comincia con la T: è una delle allitterazioni più famose della letteratura latina." },
+  { l: 1, f: "allitterazione", d: 4, t: "The [p]raiseful [p]rincess [p]ierced and [p]ricked\na [p]retty [p]leasing [p]ricket", s: "William Shakespeare, Pene d’amor perdute, atto IV",
+    x: "La lodata principessa trafisse e ferì un grazioso, piacente cerbiatto.",
+    e: "Il suono P si ripete in quasi tutte le parole, come in uno scioglilingua." },
+  { l: 1, f: "onomatopea", d: 4, t: "[Frritt]!… c’est le vent qui se déchaîne.\n[Flacc]!… c’est la pluie qui tombe à torrents.", s: "Jules Verne, Frritt-Flacc",
+    x: "Frritt!… è il vento che si scatena. Flacc!… è la pioggia che cade a dirotto.",
+    e: "«Frritt» imita il sibilo del vento e «Flacc» il colpo della pioggia: parole inventate per far sentire il rumore (onomatopea propria)." },
+  { l: 1, f: "onomatopea", d: 5, t: "[Clof, clop, cloch, cloffete, cloppete, clocchete, chchch…]", s: "Aldo Palazzeschi, La fontana malata",
+    e: "Sono parole inventate che imitano il rumore dell’acqua che gocciola e gorgoglia nella fontana. Anche se ritornano le stesse lettere, qui contano i rumori imitati: onomatopea propria." },
+
+  /* ---------- Livello 2: chiasmo e climax ---------- */
+  { l: 2, f: "chiasmo", d: 1, t: "[Fai] ciò che [ami], [ama] ciò che [fai]", s: "Frase d’esempio",
+    e: "Chiasmo: gli elementi si incrociano come in uno specchio, nello schema AB BA: «fai» (A) «ami» (B) / «ama» (B) «fai» (A)." },
+  { l: 2, f: "chiasmo", d: 1, t: "[Mangiare] per [vivere], non [vivere] per [mangiare]", s: "Detto popolare",
+    e: "Chiasmo: «mangiare» (A) «vivere» (B) / «vivere» (B) «mangiare» (A). Gli stessi due elementi tornano in ordine inverso." },
+  { l: 2, f: "chiasmo", d: 3, t: "[Fair] is [foul], and [foul] is [fair]", s: "William Shakespeare, Macbeth",
+    x: "Il bello è brutto e il brutto è bello.",
+    e: "Chiasmo: «fair» (A) «foul» (B) / «foul» (B) «fair» (A): schema AB BA." },
+  { l: 2, f: "chiasmo", d: 3, t: "[Siena] mi [fe’],\n[disfecemi] [Maremma]", s: "Dante, Purgatorio V",
+    e: "Chiasmo: «Siena» (A) «mi fe’» (B) / «disfecemi» (B) «Maremma» (A): soggetto e verbo si incrociano." },
+  { l: 2, f: "chiasmo", d: 4, t: "Le [donne], i [cavalier], l’[arme], gli [amori]", s: "Ludovico Ariosto, Orlando furioso, canto I",
+    e: "Chiasmo: «donne» (A) «cavalieri» (B) / «armi» (B) «amori» (A). Anche se è un elenco, non c’è una scala di intensità: c’è un incrocio." },
+  { l: 2, f: "chiasmo", d: 4, t: "La [fuga] e la [vittoria],\nla [reggia] e il tristo [esiglio]", s: "Alessandro Manzoni, Il cinque maggio",
+    e: "Chiasmo: «fuga» (A) «vittoria» (B) / «reggia» (B) «esiglio» (A): la fuga corrisponde all’esilio e la vittoria alla reggia, in ordine incrociato." },
+  { l: 2, f: "chiasmo", d: 4, t: "[Sopire], [troncare], padre molto reverendo: [troncare], [sopire]", s: "Alessandro Manzoni, I promessi sposi, cap. XIX",
+    e: "Chiasmo: «sopire, troncare… troncare, sopire»: i due verbi tornano nell’ordine inverso (AB BA)." },
+  { l: 2, f: "chiasmo", d: 4, t: "[brilla] nell’[aria]\ne per li [campi] [esulta]", s: "Giacomo Leopardi, Il passero solitario",
+    e: "Chiasmo: verbo (A) e complemento (B), poi complemento (B) e verbo (A): «brilla nell’aria / per li campi esulta»." },
+  { l: 2, f: "chiasmo", d: 5, t: "si spandea lungo ne’ campi\ndi [falangi] un [tumulto] e un [suon] di [tube]", s: "Ugo Foscolo, Dei Sepolcri",
+    e: "Chiasmo: «di falangi» (A) «tumulto» (B) / «suon» (B) «di tube» (A): il complemento sta prima nel primo gruppo e dopo nel secondo." },
+  { l: 2, f: "climax", d: 1, t: "L’[amo], l’[adoro], la [venero]", s: "Frase d’esempio",
+    e: "Climax: amare, adorare, venerare. Ogni verbo è più forte del precedente." },
+  { l: 2, f: "climax", d: 1, t: "Per tutto il giorno ha [piovuto], [diluviato], [grandinato]", s: "Frase d’esempio",
+    e: "Climax: piovere, diluviare, grandinare. L’intensità cresce a ogni parola." },
+  { l: 2, f: "climax", d: 2, t: "[Giorno] dopo giorno, [mese] dopo mese, [anno] dopo anno, ti aspettavo", s: "Frase d’esempio",
+    e: "Climax: giorno, mese, anno. L’attesa si allunga a ogni passaggio, come i gradini di una scala." },
+  { l: 2, f: "climax", d: 3, t: "[Volli], e volli [sempre], e [fortissimamente] volli", s: "Vittorio Alfieri, Lettera a Ranieri de’ Calzabigi",
+    e: "Climax: volli, sempre volli, fortissimamente volli. La volontà cresce a ogni ripetizione." },
+  { l: 2, f: "climax", d: 4, t: "[Lost], [vaded], [broken], [dead] within an hour", s: "William Shakespeare, dalla raccolta The Passionate Pilgrim",
+    x: "Perduta, appassita, spezzata, morta nel giro di un’ora.",
+    e: "Climax: ogni termine è più grave del precedente, dalla perdita alla morte." },
+  { l: 2, f: "climax", d: 4, t: "Benedetto sia ’l [giorno], e ’l [mese], et l’[anno]\ne la [stagione], e ’l [tempo], et l’[ora], e ’l [punto]", s: "Francesco Petrarca, Canzoniere LXI",
+    e: "Climax: giorno, mese, anno (che crescono), poi stagione, tempo, ora, punto (che si riducono): una scala prima in salita e poi in discesa." },
+  { l: 2, f: "climax", d: 4, t: "[Diverse lingue], [orribili favelle],\n[parole di dolore], [accenti d’ira],\n[voci alte e fioche], e [suon di man con elle]", s: "Dante, Inferno III",
+    e: "Climax: i rumori dell’Inferno si accumulano uno dopo l’altro e diventano sempre più forti." },
+  { l: 2, f: "climax", d: 5, t: "la terra [ansante], [livida], in [sussulto];\nil cielo [ingombro], [tragico], [disfatto]", s: "Giovanni Pascoli, Il lampo",
+    e: "Climax: gli aggettivi si accumulano e peggiorano via via, dalla paura alla distruzione." },
+
+  /* ---------- Livello 3: anastrofe e anafora ---------- */
+  { l: 3, f: "anastrofe", d: 1, t: "[Rosse di sole] [ardevano] le colline", s: "Frase d’esempio",
+    e: "Anastrofe: l’ordine normale sarebbe «le colline ardevano rosse di sole»; qui «rosse di sole» e il verbo vengono prima del soggetto." },
+  { l: 3, f: "anastrofe", d: 1, t: "[Di mille luci] [s’adornò] la sera", s: "Frase d’esempio",
+    e: "Anastrofe: l’ordine normale sarebbe «la sera s’adornò di mille luci». Complemento e verbo vengono prima del soggetto." },
+  { l: 3, f: "anastrofe", d: 1, t: "[Dolce] [suonava] nel vento la sua voce", s: "Frase d’esempio",
+    e: "Anastrofe: l’ordine normale sarebbe «la sua voce suonava dolce nel vento». L’aggettivo e il verbo passano davanti al soggetto." },
+  { l: 3, f: "anastrofe", d: 2, t: "[La Coop sei tu]", s: "Slogan pubblicitario",
+    e: "Anastrofe: l’ordine normale sarebbe «tu sei la Coop». Il predicato passa davanti al soggetto per dare enfasi." },
+  { l: 3, f: "anastrofe", d: 3, t: "È così che [il mio dono]\n[t’offro] quando sei triste", s: "Umberto Saba, A mia moglie",
+    e: "Anastrofe: l’ordine normale sarebbe «t’offro il mio dono quando sei triste». Il complemento «il mio dono» viene prima del verbo." },
+  { l: 3, f: "anastrofe", d: 3, t: "Chi vuol esser lieto, [sia]:\n[di doman] non c’è certezza", s: "Lorenzo de’ Medici, Trionfo di Bacco e Arianna",
+    e: "Anastrofe: l’ordine normale sarebbe «chi vuol essere lieto, lo sia: non c’è certezza di domani». Qui il verbo e «di doman» vengono messi in evidenza prima." },
+  { l: 3, f: "anastrofe", d: 3, t: "belli, e [l’un dell’altro] [ardenti]", s: "Lorenzo de’ Medici, Trionfo di Bacco e Arianna",
+    e: "Anastrofe: l’ordine normale sarebbe «ardenti l’uno dell’altro». Qui il complemento «dell’altro» precede l’aggettivo." },
+  { l: 3, f: "anastrofe", d: 3, t: "Questi lieti satiretti,\n[delle ninfe] [innamorati]", s: "Lorenzo de’ Medici, Trionfo di Bacco e Arianna",
+    e: "Anastrofe: l’ordine normale sarebbe «innamorati delle ninfe». Qui il complemento viene prima del participio." },
+  { l: 3, f: "anastrofe", d: 4, t: "Canti, e così trapassi\n[dell’anno e di tua vita] [il più bel fiore]", s: "Giacomo Leopardi, Il passero solitario",
+    e: "Anastrofe: l’ordine normale sarebbe «il più bel fiore dell’anno e della tua vita». Il complemento viene messo prima del nome." },
+  { l: 3, f: "anastrofe", d: 4, t: "[Erano] i capei d’oro a l’aura [sparsi]", s: "Francesco Petrarca, Canzoniere XC",
+    e: "Anastrofe: l’ordine normale sarebbe «i capei d’oro erano sparsi a l’aura». Il verbo apre il verso e il participio lo chiude." },
+  { l: 3, f: "anastrofe", d: 5, t: "si spandea lungo ne’ campi\ndi falangi [un tumulto] e [un suon di tube]", s: "Ugo Foscolo, Dei Sepolcri",
+    e: "Anastrofe: l’ordine normale sarebbe «un tumulto di falangi e un suon di tube si spandeva lungo i campi». Il soggetto è messo in fondo." },
+  { l: 3, f: "anafora", d: 1, t: "[Con te] ho riso, [con te] ho pianto, [con te] ho imparato a vivere", s: "Frase d’esempio",
+    e: "Anafora: «con te» ripetuto all’inizio di ogni frase." },
+  { l: 3, f: "anafora", d: 1, t: "[Oggi] si ride, [oggi] si canta, [oggi] si balla", s: "Frase d’esempio",
+    e: "Anafora: «oggi» apre tre frasi di seguito." },
+  { l: 3, f: "anafora", d: 1, t: "[Senza di te] la casa è vuota, [senza di te] il tempo non passa", s: "Frase d’esempio",
+    e: "Anafora: «senza di te» apre le due frasi." },
+  { l: 3, f: "anafora", d: 2, t: "[Che] pensieri soavi,\n[che] speranze, [che] cori, o Silvia mia!", s: "Giacomo Leopardi, A Silvia",
+    e: "Anafora: «che» ripetuto all’inizio delle espressioni: «che pensieri… che speranze… che cori»." },
+  { l: 3, f: "anafora", d: 2, t: "[S’i’ fosse] foco, arderei ’l mondo;\n[s’i’ fosse] vento, lo tempesterei;\n[s’i’ fosse] acqua, i’ l’annegherei;\n[s’i’ fosse] Dio, mandereil’en profondo", s: "Cecco Angiolieri",
+    e: "Anafora: «s’i’ fosse» apre ogni verso: ripetizione all’inizio di versi consecutivi." },
+  { l: 3, f: "anafora", d: 2, t: "[Piove su] le tamerici\nsalmastre ed arse,\n[piove su] i pini\nscagliosi ed irti", s: "Gabriele D’Annunzio, La pioggia nel pineto",
+    e: "Anafora: «piove su» apre i versi che descrivono dove cade la pioggia." },
+  { l: 3, f: "anafora", d: 3, t: "[Dall’]Alpi alle Piramidi,\n[dal] Manzanarre al Reno", s: "Alessandro Manzoni, Il cinque maggio",
+    e: "Anafora: la stessa preposizione, «dall’… dal…», apre i due versi." },
+  { l: 3, f: "anafora", d: 3, t: "[Due volte] nella polvere,\n[due volte] sull’altar", s: "Alessandro Manzoni, Il cinque maggio",
+    e: "Anafora: «due volte» apre i due versi." },
+  { l: 3, f: "anafora", d: 3, t: "[Dagli] atrii muscosi, [dai] fori cadenti,\n[dai] boschi, [dall’]arse fucine stridenti", s: "Alessandro Manzoni, Adelchi, coro dell’atto III",
+    e: "Anafora: «dagli… dai… dai… dall’…» apre ogni elemento dell’elenco." },
+  { l: 3, f: "anafora", d: 4, t: "[Per me si va] ne la città dolente,\n[per me si va] ne l’etterno dolore,\n[per me si va] tra la perduta gente", s: "Dante, Inferno III",
+    e: "Anafora: «per me si va» ripetuto all’inizio di tre versi." },
+
+  /* ---------- Livello 4: antitesi e ossimoro ---------- */
+  { l: 4, f: "antitesi", d: 1, t: "Era [piccolo] di statura, ma [grande] di cuore", s: "Frase d’esempio",
+    e: "Antitesi: «piccolo» e «grande» sono contrari, in due parti diverse della frase." },
+  { l: 4, f: "antitesi", d: 1, t: "Di [giorno] la piazza [rideva], di [notte] [piangeva]", s: "Frase d’esempio",
+    e: "Antitesi: giorno/notte e ridere/piangere sono idee opposte messe a confronto in due parti della frase." },
+  { l: 4, f: "antitesi", d: 2, t: "[To be], or [not to be]", s: "William Shakespeare, Hamlet",
+    x: "Essere o non essere.",
+    e: "Antitesi: «essere» e «non essere» sono due possibilità opposte, in due parti della frase." },
+  { l: 4, f: "antitesi", d: 3, t: "Et [temo], et [spero]; et [ardo], et son un [ghiaccio]", s: "Francesco Petrarca, Canzoniere CXXXIV",
+    e: "Antitesi: temere/sperare e ardere/essere un ghiaccio sono coppie di contrari in parti diverse della frase." },
+  { l: 4, f: "antitesi", d: 3, t: "Due volte nella [polvere],\ndue volte sull’[altar]", s: "Alessandro Manzoni, Il cinque maggio",
+    e: "Antitesi: «polvere» (la caduta) e «altar» (la gloria) sono due situazioni opposte in due versi." },
+  { l: 4, f: "antitesi", d: 3, t: "et [volo] sopra ’l [cielo], et [giaccio] in [terra]", s: "Francesco Petrarca, Canzoniere CXXXIV",
+    e: "Antitesi: volare sopra il cielo e giacere in terra sono due immagini opposte in parti diverse del verso." },
+  { l: 4, f: "antitesi", d: 4, t: "[Pace] non trovo, et non ò da far [guerra]", s: "Francesco Petrarca, Canzoniere CXXXIV",
+    e: "Antitesi: «pace» e «guerra» sono due termini opposti, in due parti del verso." },
+  { l: 4, f: "antitesi", d: 4, t: "et [nulla] stringo, et [tutto] ’l mondo abbraccio", s: "Francesco Petrarca, Canzoniere CXXXIV",
+    e: "Antitesi: «nulla» e «tutto» sono contrari, in due parti del verso." },
+  { l: 4, f: "ossimoro", d: 1, t: "Nella stanza calò un [silenzio assordante]", s: "Frase d’esempio",
+    e: "Ossimoro: «silenzio» e «assordante» sono contrari e stanno uniti nella stessa espressione." },
+  { l: 4, f: "ossimoro", d: 1, t: "un [dolce tormento]", s: "Frase d’esempio",
+    e: "Ossimoro: «dolce» e «tormento» sono parole opposte unite in un’unica espressione." },
+  { l: 4, f: "ossimoro", d: 1, t: "[ghiaccio bollente]", s: "Frase d’esempio",
+    e: "Ossimoro: «ghiaccio» e «bollente» insieme, in una sola espressione." },
+  { l: 4, f: "ossimoro", d: 2, t: "una [lucida follia]", s: "Frase d’esempio",
+    e: "Ossimoro: «lucida» e «follia» sembrano escludersi, ma sono uniti in un’unica espressione." },
+  { l: 4, f: "ossimoro", d: 3, t: "O [viva morte], o [dilettoso male],\ncome puoi tanto in me, s’io nol consento?", s: "Francesco Petrarca, Canzoniere CXXXII",
+    e: "Ossimoro: «viva morte» e «dilettoso male» sono due espressioni in cui le parole si contraddicono." },
+  { l: 4, f: "ossimoro", d: 3, t: "bianca bianca nel [tacito tumulto]", s: "Giovanni Pascoli, Il lampo",
+    e: "Ossimoro: «tacito» e «tumulto» si contraddicono, uniti nella stessa espressione." },
+  { l: 4, f: "ossimoro", d: 4, t: "O [brawling love]! O [loving hate]!", s: "William Shakespeare, Romeo e Giulietta, atto I",
+    x: "O amore litigioso! O odio amoroso!",
+    e: "Ossimoro: in «amore litigioso» e in «odio amoroso» le due parole si contraddicono dentro la stessa espressione." }
+];
+
+var ITEMS_2 = [
+  /* ---------- Livello 5: iperbole e litote ---------- */
+  { l: 5, f: "iperbole", d: 1, t: "Ho una [fame da lupi]", s: "Frase d’esempio",
+    e: "Iperbole: nessuno ha davvero una fame da lupi. L’esagerazione serve a dire «ho molta fame»." },
+  { l: 5, f: "iperbole", d: 1, t: "Ti ho aspettato [un’eternità]", s: "Frase d’esempio",
+    e: "Iperbole: un’eternità è un tempo esagerato; si vuole dire «ho aspettato molto»." },
+  { l: 5, f: "iperbole", d: 1, t: "Te l’ho detto [mille volte]", s: "Frase d’esempio",
+    e: "Iperbole: «mille volte» è un numero esagerato che significa «molte volte»." },
+  { l: 5, f: "iperbole", d: 1, t: "Il mio zaino pesa [una tonnellata]", s: "Frase d’esempio",
+    e: "Iperbole: lo zaino non pesa una tonnellata; la misura è volutamente esagerata." },
+  { l: 5, f: "iperbole", d: 1, t: "Ho pianto [fiumi di lacrime]", s: "Frase d’esempio",
+    e: "Iperbole: nessuno piange fiumi di lacrime; l’esagerazione sottolinea il dolore." },
+  { l: 5, f: "iperbole", d: 2, t: "Non ti vedo [da secoli]", s: "Frase d’esempio",
+    e: "Iperbole: «da secoli» è esagerato e vuol dire «da molto tempo». C’è un «non», ma la frase ingrandisce invece di attenuare." },
+  { l: 5, f: "iperbole", d: 3, t: "Non c’è [nessuno più felice di me al mondo]", s: "Frase d’esempio",
+    e: "Iperbole: «nessuno più felice di me al mondo» esagera l’intensità della felicità, anche se la frase contiene «non»." },
+  { l: 5, f: "iperbole", d: 3, t: "S’i’ fosse foco, [arderei ’l mondo]", s: "Cecco Angiolieri",
+    e: "Iperbole: il poeta dice che brucerebbe il mondo intero, un desiderio volutamente esagerato." },
+  { l: 5, f: "iperbole", d: 3, t: "Ho sceso per te [almeno un milione di scale]", s: "Da Eugenio Montale, Xenia",
+    e: "Iperbole: «un milione di scale» è un numero esagerato che dice «tantissime»." },
+  { l: 5, f: "iperbole", d: 4, t: "Da mi basia [mille], deinde [centum]", s: "Catullo, carme V",
+    x: "Dammi mille baci, poi cento.",
+    e: "Iperbole: «mille baci, poi cento» sono numeri esagerati, per dire che il desiderio non è mai sazio." },
+  { l: 5, f: "litote", d: 1, t: "[Non è certo uno stupido]", s: "Frase d’esempio",
+    e: "Litote: si dice «non è stupido» per dire «è intelligente». Si afferma una cosa negando il suo contrario, e di solito si attenua." },
+  { l: 5, f: "litote", d: 1, t: "[Non c’è male]", s: "Frase d’esempio",
+    e: "Litote: «non c’è male» significa «va abbastanza bene». Si nega il contrario." },
+  { l: 5, f: "litote", d: 1, t: "[Non è un granché]", s: "Frase d’esempio",
+    e: "Litote: «non è un granché» vuol dire «è poco bello»: si dice meno di quello che si pensa." },
+  { l: 5, f: "litote", d: 1, t: "La torta [non era male]", s: "Frase d’esempio",
+    e: "Litote: «non era male» vuol dire «era buona». Si nega il contrario." },
+  { l: 5, f: "litote", d: 2, t: "[Non ti biasimo]", s: "Frase d’esempio",
+    e: "Litote: «non ti biasimo» vuol dire «ti capisco, hai ragione»." },
+  { l: 5, f: "litote", d: 2, t: "[Non sono insensibile] ai tuoi complimenti", s: "Frase d’esempio",
+    e: "Litote: «non sono insensibile» vuol dire «mi fanno piacere». Si nega il contrario." },
+  { l: 5, f: "litote", d: 2, t: "[Niente male] questo caffè!", s: "Frase d’esempio",
+    e: "Litote: «niente male» vuol dire «è buono». Si nega il contrario per dire meno." },
+  { l: 5, f: "litote", d: 3, t: "Un tipo [poco raccomandabile]", s: "Frase d’esempio",
+    e: "Litote: «poco raccomandabile» vuol dire «da evitare». Si dice meno del vero, e qui non c’è nemmeno un «non»." },
+  { l: 5, f: "litote", d: 3, t: "[non era nato con un cuor di leone]", s: "Alessandro Manzoni, I promessi sposi, cap. I",
+    e: "Litote: «non era nato con un cuor di leone» vuol dire «era pauroso». Il leone non è un’esagerazione: viene negato il coraggio." },
+  { l: 5, f: "litote", d: 4, t: "onde [non tacque]\nle tue limpide nubi e le tue fronde", s: "Ugo Foscolo, A Zacinto",
+    e: "Litote: «non tacque» vuol dire «cantò, celebrò». Si nega il contrario." },
+  { l: 5, f: "litote", d: 4, t: "[Non ignara mali] miseris succurrere disco", s: "Virgilio, Eneide, libro I",
+    x: "Non ignara del dolore, imparo a soccorrere gli infelici.",
+    e: "Litote: «non ignara del dolore» vuol dire «conoscendo bene il dolore». Si nega il contrario." },
+
+  /* ---------- Livello 6: personificazione e perifrasi ---------- */
+  { l: 6, f: "personificazione", d: 1, t: "Il sole [sorrideva] sul mare", s: "Frase d’esempio",
+    e: "Personificazione: il sole «sorride», un’azione che fanno solo le persone." },
+  { l: 6, f: "personificazione", d: 1, t: "Il vento [sussurrava segreti] agli alberi", s: "Frase d’esempio",
+    e: "Personificazione: il vento «sussurra segreti», azioni umane date al vento." },
+  { l: 6, f: "personificazione", d: 2, t: "La città [dormiva], e i sogni [vagavano liberi] per le vie deserte", s: "Frase d’esempio",
+    e: "Personificazione: la città «dorme» e i sogni «vagano liberi»: a cose e idee sono attribuite azioni umane." },
+  { l: 6, f: "personificazione", d: 3, t: "e sotto il maestrale\n[urla e biancheggia] il mar", s: "Giosue Carducci, San Martino",
+    e: "Personificazione: il mare «urla», un’azione umana attribuita al mare." },
+  { l: 6, f: "personificazione", d: 3, t: "ma odo parole più nuove\nche [parlano] gocciole e foglie\nlontane", s: "Gabriele D’Annunzio, La pioggia nel pineto",
+    e: "Personificazione: le gocce e le foglie «parlano», un’azione umana data a cose." },
+  { l: 6, f: "personificazione", d: 3, t: "Che [fai] tu, luna in ciel? [dimmi], che [fai],\nsilenziosa luna?", s: "Giacomo Leopardi, Canto notturno di un pastore errante dell’Asia",
+    e: "Personificazione: la luna è trattata come una persona a cui si rivolge una domanda." },
+  { l: 6, f: "personificazione", d: 3, t: "O natura, o natura, perché [non rendi] poi\nquel che [prometti] allor?", s: "Giacomo Leopardi, A Silvia",
+    e: "Personificazione: la natura è trattata come una persona a cui si chiede conto di una promessa." },
+  { l: 6, f: "perifrasi", d: 1, t: "Domani visiteremo [la città eterna]", s: "Frase d’esempio",
+    e: "Perifrasi: «la città eterna» è un giro di parole per dire «Roma»." },
+  { l: 6, f: "perifrasi", d: 1, t: "Gli astronomi osservano [il pianeta rosso]", s: "Frase d’esempio",
+    e: "Perifrasi: «il pianeta rosso» sta per «Marte»." },
+  { l: 6, f: "perifrasi", d: 1, t: "[L’astro del giorno] tramontava", s: "Frase d’esempio",
+    e: "Perifrasi: «l’astro del giorno» sta per «il sole»." },
+  { l: 6, f: "perifrasi", d: 3, t: "Il [re della foresta] ruggì", s: "Frase d’esempio",
+    e: "Perifrasi: «il re della foresta» sta per «il leone». Ruggire è un’azione da leone, non da persona." },
+  { l: 6, f: "perifrasi", d: 3, t: "[il bel paese]\nlà dove ’l sì suona", s: "Dante, Inferno XXXIII",
+    e: "Perifrasi: «il bel paese là dove ’l sì suona» sta per «l’Italia»." },
+  { l: 6, f: "perifrasi", d: 3, t: "La gloria di [colui che tutto move]", s: "Dante, Paradiso I",
+    e: "Perifrasi: «colui che tutto move» sta per «Dio»." },
+  { l: 6, f: "perifrasi", d: 3, t: "[colui]\n[che fece per viltade il gran rifiuto]", s: "Dante, Inferno III",
+    e: "Perifrasi: è un giro di parole per indicare, secondo la tradizione, papa Celestino V." },
+  { l: 6, f: "perifrasi", d: 4, t: "E l’arca di [colui che nuovo Olimpo]\n[alzò in Roma a’ Celesti]", s: "Ugo Foscolo, Dei Sepolcri",
+    e: "Perifrasi: è un giro di parole per indicare Michelangelo." },
+  { l: 6, f: "perifrasi", d: 4, t: "l’inclito verso di [colui che l’acque]\n[cantò fatali]", s: "Ugo Foscolo, A Zacinto",
+    e: "Perifrasi: è un giro di parole per indicare Omero." },
+  { l: 6, f: "perifrasi", d: 4, t: "e tu prima, Firenze, udivi il carme\nche allegrò l’ira al [ghibellin fuggiasco]", s: "Ugo Foscolo, Dei Sepolcri",
+    e: "Perifrasi: «il ghibellin fuggiasco» sta per «Dante»." },
+  { l: 6, f: "perifrasi", d: 4, t: "[’l tristo sacco]\n[che merda fa di quel che si trangugia]", s: "Dante, Inferno XXVIII",
+    e: "Perifrasi: è un giro di parole, volgare e dispregiativo, per indicare lo stomaco." },
+  { l: 6, f: "perifrasi", d: 4, t: "[Lo ’mperador del doloroso regno]", s: "Dante, Inferno XXXIV",
+    e: "Perifrasi: «lo ’mperador del doloroso regno» sta per «Lucifero, signore dell’Inferno»." },
+  { l: 6, f: "perifrasi", d: 4, t: "e [quella parte onde prima è preso]\n[nostro alimento]", s: "Dante, Inferno XXV",
+    e: "Perifrasi: è un giro di parole per indicare l’ombelico." },
+  { l: 6, f: "perifrasi", d: 4, t: "[là ’ve Cristo soffrì mortale affanno]", s: "Torquato Tasso, Gerusalemme liberata, canto I",
+    e: "Perifrasi: è un giro di parole per indicare Gerusalemme." },
+  { l: 6, f: "perifrasi", d: 5, t: "incontro [là dove si perde il giorno]", s: "Giacomo Leopardi, Il sabato del villaggio",
+    e: "Perifrasi: «là dove si perde il giorno» sta per «a occidente», dove il sole tramonta." },
+
+  /* ---------- Livello 7: metafora, similitudine, metonimia, sineddoche ---------- */
+  { l: 7, f: "metafora", d: 1, t: "La mia anima [è un mare in tempesta]", s: "Frase d’esempio",
+    e: "Metafora: l’anima «è» un mare in tempesta, senza «come». Il confronto resta implicito." },
+  { l: 7, f: "metafora", d: 1, t: "Giulio [è stato un raggio di sole] in quella giornata grigia", s: "Frase d’esempio",
+    e: "Metafora: Giulio «è stato» un raggio di sole. Il paragone non usa «come»." },
+  { l: 7, f: "metafora", d: 3, t: "All the world’s [a stage],\nAnd all the men and women merely [players]", s: "William Shakespeare, Come vi piace, atto II",
+    x: "Tutto il mondo è un palcoscenico, e tutti gli uomini e le donne sono semplici attori.",
+    e: "Metafora: il mondo «è» un palcoscenico e gli uomini «sono» attori, senza «come»." },
+  { l: 7, f: "metafora", d: 3, t: "Non ho voglia\ndi tuffarmi\nin [un gomitolo]\n[di strade]", s: "Giuseppe Ungaretti, Natale",
+    e: "Metafora: il groviglio di strade viene chiamato «gomitolo», senza «come»." },
+  { l: 7, f: "metafora", d: 3, t: "[Tu fior de la mia pianta]\npercossa e inaridita", s: "Giosue Carducci, Pianto antico",
+    e: "Metafora: il figlio è chiamato «fior de la mia pianta», paragone implicito." },
+  { l: 7, f: "metafora", d: 3, t: "Amaro e noia\nla vita, altro mai nulla; e [fango è il mondo]", s: "Giacomo Leopardi, A se stesso",
+    e: "Metafora: il mondo «è» fango, un confronto senza «come»." },
+  { l: 7, f: "metafora", d: 3, t: "Erano i [capei d’oro] a l’aura sparsi", s: "Francesco Petrarca, Canzoniere XC",
+    e: "Metafora: «capei d’oro» al posto di «capelli biondi e luminosi», senza «come»." },
+  { l: 7, f: "metafora", d: 4, t: "Ahi serva Italia, di dolore ostello,\n[nave sanza nocchiere in gran tempesta]", s: "Dante, Purgatorio VI",
+    e: "Metafora: l’Italia è chiamata «nave sanza nocchiere», un paragone implicito." },
+  { l: 7, f: "metafora", d: 4, t: "Passa la [nave mia colma d’oblio]\nper aspro mare, a mezza notte il verno", s: "Francesco Petrarca, Canzoniere CLXXXIX",
+    e: "Metafora: la vita del poeta è chiamata «nave» in mare in tempesta, senza «come»." },
+  { l: 7, f: "similitudine", d: 1, t: "La sua pelle era fredda [come il marmo]", s: "Frase d’esempio",
+    e: "Similitudine: paragone esplicito introdotto da «come»." },
+  { l: 7, f: "similitudine", d: 2, t: "Tu sei [come una giovane],\nuna bianca pollastra", s: "Umberto Saba, A mia moglie",
+    e: "Similitudine: il paragone è introdotto da «come»." },
+  { l: 7, f: "similitudine", d: 3, t: "[Quali colombe] dal disio chiamate\ncon l’ali alzate e ferme al dolce nido", s: "Dante, Inferno V",
+    e: "Similitudine: paragone esplicito, introdotto da «quali» (che vuol dire «come»)." },
+  { l: 7, f: "similitudine", d: 3, t: "[Come d’autunno] si levan le foglie\nl’una appresso de l’altra", s: "Dante, Inferno III",
+    e: "Similitudine: paragone esplicito introdotto da «come»." },
+  { l: 7, f: "similitudine", d: 4, t: "cotesta età fiorita\nè [come un giorno d’allegrezza pieno]", s: "Giacomo Leopardi, Il sabato del villaggio",
+    e: "Similitudine: il paragone è introdotto da «come». «Età fiorita» è una metafora dentro la frase, ma il paragone esplicito vince." },
+  { l: 7, f: "similitudine", d: 4, t: "[Come sul capo al naufrago]\nl’onda s’avvolve e pesa", s: "Alessandro Manzoni, Il cinque maggio",
+    e: "Similitudine: paragone esplicito introdotto da «come»." },
+  { l: 7, f: "similitudine", d: 4, t: "[come l’aratro] in mezzo alla maggese", s: "Giovanni Pascoli, Lavandare",
+    e: "Similitudine: paragone esplicito introdotto da «come»." },
+  { l: 7, f: "similitudine", d: 4, t: "[come un occhio], che, largo, esterrefatto,\ns’aprì si chiuse, nella notte nera", s: "Giovanni Pascoli, Il lampo",
+    e: "Similitudine: paragone esplicito introdotto da «come»." },
+  { l: 7, f: "metonimia", d: 1, t: "Ascolto [Mozart]", s: "Frase d’esempio",
+    e: "Metonimia: «Mozart» sta per «la sua musica» (autore per opera). Non è la parte per il tutto, quindi è metonimia." },
+  { l: 7, f: "metonimia", d: 1, t: "Ho bevuto un [bicchiere]", s: "Frase d’esempio",
+    e: "Metonimia: «bicchiere» sta per «vino» o «acqua» (contenitore per contenuto)." },
+  { l: 7, f: "metonimia", d: 1, t: "Ha letto tutto [Shakespeare] per prepararsi all’esame", s: "Frase d’esempio",
+    e: "Metonimia: «Shakespeare» sta per «le sue opere» (autore per opera)." },
+  { l: 7, f: "metonimia", d: 2, t: "Ammiro i [marmi] del Partenone", s: "Frase d’esempio",
+    e: "Metonimia: «marmi» sta per «sculture» (materia per oggetto). Non è la parte per il tutto, quindi è metonimia." },
+  { l: 7, f: "metonimia", d: 3, t: "Spinge egli [il ferro] nel bel sen di punta", s: "Torquato Tasso, Gerusalemme liberata",
+    e: "Metonimia: «il ferro» sta per «la spada» (materia per oggetto)." },
+  { l: 7, f: "metonimia", d: 3, t: "me vedrai seduto\nsu la tua [pietra], o fratel mio, gemendo", s: "Ugo Foscolo, In morte del fratello Giovanni",
+    e: "Metonimia: «la tua pietra» sta per «la tua tomba» (materia per oggetto)." },
+  { l: 7, f: "metonimia", d: 4, t: "sol con un [legno] e con quella compagna\npicciola", s: "Dante, Inferno XXVI",
+    e: "Metonimia: «legno» sta per «nave» (materia per oggetto)." },
+  { l: 7, f: "metonimia", d: 4, t: "più lieve [legno] convien che ti porti", s: "Dante, Inferno III",
+    e: "Metonimia: «legno» sta per «barca» (materia per oggetto)." },
+  { l: 7, f: "sineddoche", d: 1, t: "Vedo una [vela] all’orizzonte", s: "Frase d’esempio",
+    e: "Sineddoche: la «vela» è una parte della nave e sta al posto della nave intera (la parte per il tutto)." },
+  { l: 7, f: "sineddoche", d: 1, t: "Ha quattro [bocche] da sfamare", s: "Frase d’esempio",
+    e: "Sineddoche: le «bocche» (una parte) stanno al posto delle persone (il tutto)." },
+  { l: 7, f: "sineddoche", d: 1, t: "Non ho un [tetto] sopra la testa", s: "Frase d’esempio",
+    e: "Sineddoche: il «tetto» (una parte) sta al posto della casa intera." },
+  { l: 7, f: "sineddoche", d: 2, t: "Il paese conta mille [anime]", s: "Frase d’esempio",
+    e: "Sineddoche: le «anime» (una parte) stanno al posto delle persone intere." },
+  { l: 7, f: "sineddoche", d: 3, t: "Ritornava una rondine al [tetto]", s: "Giovanni Pascoli, X Agosto",
+    e: "Sineddoche: il «tetto» (una parte) sta al posto della casa." },
+  { l: 7, f: "sineddoche", d: 4, t: "E quando la fatal [prora] d’Enea\nper tanto mar la foce tua cercò", s: "Giosue Carducci, Agli amici della Valle Tiberina",
+    e: "Sineddoche: la «prora» (una parte) sta al posto dell’intera nave." },
+  { l: 7, f: "sineddoche", d: 4, t: "Degli Achivi era Crise alle veloci\n[prore] venuto a riscattar la figlia", s: "Vincenzo Monti, Iliade, libro I",
+    e: "Sineddoche: le «prore» (parti delle navi) stanno al posto dell’intera flotta." }
+];
+
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- parametri ---------- */
+  var SOGLIA_PCT = 0.7;      /* quota di risposte giuste (a 100 punti l’una) per superare il livello */
+  var PUNTI_BASE = 100;      /* punti di una risposta giusta */
+  var PUNTI_BONUS = 30;      /* bonus massimo per la rapidità */
+
+  /* ---------- helper DOM ---------- */
+  function h(tag, props) {
+    var e = document.createElement(tag);
+    if (props) for (var k in props) {
+      if (k === "class") e.className = props[k];
+      else if (k === "text") e.textContent = props[k];
+      else e.setAttribute(k, props[k]);
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      [].concat(arguments[i]).forEach(function (c) { if (c == null) return; e.appendChild(c.nodeType ? c : document.createTextNode(c)); });
+    }
+    return e;
+  }
+  function rich(text) {
+    var f = document.createDocumentFragment();
+    text.split(/(\*\*[^*]+\*\*)/).forEach(function (p) {
+      if (!p) return;
+      if (p.indexOf("**") === 0) { var s = document.createElement("strong"); s.textContent = p.slice(2, -2); f.appendChild(s); }
+      else f.appendChild(document.createTextNode(p));
+    });
+    return f;
+  }
+  function lines(text, marks) {
+    var f = document.createDocumentFragment();
+    text.split("\n").forEach(function (line) {
+      var d = document.createElement("div");
+      line.split(/(\[[^\]]*\])/).forEach(function (p) {
+        if (!p) return;
+        if (p.charAt(0) === "[" && p.charAt(p.length - 1) === "]") {
+          var t = p.slice(1, -1);
+          if (marks) { var m = document.createElement("mark"); m.textContent = t; d.appendChild(m); }
+          else d.appendChild(document.createTextNode(t));
+        } else d.appendChild(document.createTextNode(p));
+      });
+      f.appendChild(d);
+    });
+    return f;
+  }
+  function plain(t) { return t.replace(/[\[\]]/g, ""); }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  /* ---------- sprite e villaggio ---------- */
+  function sprite(rows, pal) {
+    var w = Math.max.apply(null, rows.map(function (r) { return r.length; })), hh = rows.length;
+    var s = '<svg viewBox="0 0 ' + w + " " + hh + '" shape-rendering="crispEdges" aria-hidden="true">';
+    rows.forEach(function (r, y) {
+      for (var x = 0; x < r.length; x++) {
+        var c = pal[r.charAt(x)];
+        if (c) s += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + c + '"/>';
+      }
+    });
+    return s + "</svg>";
+  }
+  var SAGE_ROWS = [
+    "....HHHH....", "...HHHHHH...", "...HHGGHH...", ".HHHHHHHHHH.",
+    "...BSSSSB...", "...BESSEB...", "...BSSSSB...", "...BBSSBB...",
+    "...BBBBBB...", "..RRBBBBRR..", ".RRRRBBRRRR.", ".RRRrRRrRRR.",
+    ".RRRRRRRRRR.", "..RRRRRRRR..", "..RRRRRRRR..", "..XX....XX.."
+  ];
+  var BOSS_ROWS = [
+    "..X......X..", ".XXX....XXX.", "..XXXXXXXX..", ".XXXXXXXXXX.",
+    "XXWWXXXXWWXX", "XXWKXXXXWKXX", "XXXXXXXXXXXX", "XXMMMMMMMMXX",
+    ".XXMWMWMWXX.", "..XX....XX.."
+  ];
+  var BASE_PAL = { G: "#ffb02e", B: "#f4f2ff", S: "#f2c29b", E: "#1d1b4d", X: "#3a2300" };
+  var SAGE_COL = [
+    { H: "#46d3f2", R: "#2a3f9e", r: "#1f2f78" },
+    { H: "#ff6b9a", R: "#7a2c6e", r: "#5a1f52" },
+    { H: "#ffb02e", R: "#8a4b12", r: "#6b3a0c" },
+    { H: "#5be28a", R: "#1f6b45", r: "#165232" }
+  ];
+  var BOSS_COL = ["#b46bff", "#4fd0c0", "#ff9e4f", "#8aa2ff", "#ff6b6b", "#c07bff", "#ffd24f"];
+  function sagePal(i) { var p = {}, k; for (k in BASE_PAL) p[k] = BASE_PAL[k]; for (k in SAGE_COL[i]) p[k] = SAGE_COL[i][k]; return p; }
+
+  function villageSVG() {
+    var houses = [[4, 34, 18], [44, 28, 24], [78, 40, 16], [126, 30, 26], [164, 36, 20], [208, 28, 28], [244, 40, 18], [292, 30, 24], [330, 38, 20]];
+    var s = '<svg viewBox="0 0 380 44" preserveAspectRatio="xMidYMax slice" aria-hidden="true">';
+    houses.forEach(function (o, i) {
+      var x = o[0], w = o[1], hh = o[2], top = 44 - 6 - hh;
+      s += '<rect class="vh" x="' + x + '" y="' + top + '" width="' + w + '" height="' + hh + '"/>';
+      s += '<polygon class="vr" points="' + (x - 3) + "," + top + " " + (x + w / 2) + "," + (top - 9) + " " + (x + w + 3) + "," + top + '"/>';
+      s += '<rect class="win" style="--i:' + i + '" x="' + (x + 6) + '" y="' + (top + 5) + '" width="5" height="5"/>';
+      if (w > 30) s += '<rect class="win" style="--i:' + (i + 3) + '" x="' + (x + w - 11) + '" y="' + (top + 5) + '" width="5" height="5"/>';
+    });
+    return s + '<rect class="vg" x="0" y="38" width="380" height="6"/></svg>';
+  }
+  $("#village-title").innerHTML = villageSVG();
+  $("#ground").innerHTML = villageSVG();
+
+  /* ---------- dati (da data_a.js e data_b*.js) ---------- */
+  var ITEMS = ITEMS_1.concat(ITEMS_2);
+
+  function poolOf(L) { return ITEMS.filter(function (i) { return i.l === L.id; }); }
+  function runSize(L) {
+    var pool = poolOf(L);
+    if (!L.perFig) return pool.length;
+    var n = 0;
+    L.fig.forEach(function (f) { n += Math.min(L.perFig, pool.filter(function (i) { return i.f === f; }).length); });
+    return n;
+  }
+  function sogliaOf(L) { return PUNTI_BASE * Math.ceil(SOGLIA_PCT * runSize(L)); }
+
+  /* ---------- progressi salvati ---------- */
+  var PKEY = "vfr-v2";
+  function loadP() {
+    try { var p = JSON.parse(localStorage.getItem(PKEY) || "null"); if (p && p.levels) return p; } catch (e) {}
+    return { levels: {}, teacher: false };
+  }
+  var P = loadP();
+  function saveP() { try { localStorage.setItem(PKEY, JSON.stringify(P)); } catch (e) {} }
+  function isOpen(id) { return id === 1 || P.teacher || !!(P.levels[id - 1] && P.levels[id - 1].passed); }
+  function starsText(n) { return "★★★".slice(0, n) + "☆☆☆".slice(0, 3 - n); }
+  function levelById(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i]; return null; }
+
+  /* ---------- stato ---------- */
+  var G = { L: null, run: [], cards: [], queue: [], running: false, paused: false, locked: false, score: 0, answered: 0, total: 0, soglia: 0, wave: -1,
+    bossHp: 0, bossMax: 0, mistakes: [], stats: {}, correct: 0, cool: 0, last: 0, raf: 0, bt: 0, calm: false, sound: false, steps: [], step: 0 };
+  try { if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) G.calm = true; } catch (e) {}
+
+  var field = $("#field"), ground = $("#ground"), explain = $("#explain");
+  var fb = $("#feedback"), pauseBox = $("#pausebox"), endEl = $("#end"), banner = $("#banner");
+
+  function show(id) { $$(".screen").forEach(function (s) { s.classList.toggle("active", s.id === id); }); }
+
+  /* ---------- audio ---------- */
+  var audioCtx = null;
+  function beep(freq, dur, type, vol, delay) {
+    if (!G.sound) return;
+    setTimeout(function () {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = type || "square"; o.frequency.value = freq; g.gain.value = vol || 0.04;
+        o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }, delay || 0);
+  }
+  function sfx(k) {
+    if (k === "ok") { beep(660, 0.08); beep(880, 0.1, "square", 0.04, 90); }
+    else if (k === "bad") beep(150, 0.28, "sawtooth", 0.05);
+    else if (k === "win") [523, 659, 784, 1047].forEach(function (f, i) { beep(f, 0.14, "square", 0.04, i * 140); });
+    else if (k === "lose") [330, 262, 196].forEach(function (f, i) { beep(f, 0.22, "sawtooth", 0.05, i * 200); });
+  }
+
+  /* ---------- impostazioni ---------- */
+  function syncSettings() {
+    $$(".t-calm").forEach(function (b) { b.setAttribute("aria-pressed", String(G.calm)); b.textContent = "Ritmo: " + (G.calm ? "calmo" : "normale"); });
+    $$(".t-sound").forEach(function (b) { b.setAttribute("aria-pressed", String(G.sound)); b.textContent = "Suoni: " + (G.sound ? "sì" : "no"); });
+    $$(".t-teacher").forEach(function (b) { b.setAttribute("aria-pressed", String(P.teacher)); b.textContent = "Docente: " + (P.teacher ? "sì" : "no"); });
+  }
+  document.addEventListener("click", function (e) {
+    var c = e.target.closest ? e.target.closest(".t-calm, .t-sound, .t-teacher") : null;
+    if (!c) return;
+    if (c.classList.contains("t-calm")) G.calm = !G.calm;
+    else if (c.classList.contains("t-sound")) { G.sound = !G.sound; if (G.sound) sfx("ok"); }
+    else { P.teacher = !P.teacher; saveP(); renderMap(); }
+    syncSettings();
+  });
+
+  /* ---------- mappa ---------- */
+  function renderMap() {
+    var box = $("#levels"); box.replaceChildren();
+    LEVELS.forEach(function (L) {
+      var open = isOpen(L.id), rec = P.levels[L.id], st;
+      if (!open) st = "Bloccato: supera il livello " + (L.id - 1);
+      else if (rec && rec.passed) st = "Superato. Record " + rec.best + " punti " + starsText(rec.stars);
+      else st = "Aperto. Obiettivo " + sogliaOf(L) + " punti";
+      var names = L.fig.map(function (f) { return FIG[f].nome; }).join(", ");
+      var b = h("button", { "class": "level " + (open ? "open" : "locked"), type: "button" },
+        h("span", { "class": "num", text: String(L.id) }),
+        h("span", null,
+          h("span", { "class": "nm", text: L.nome }),
+          h("span", { "class": "fg", text: names }),
+          h("span", { "class": "st", text: st })));
+      if (open) b.addEventListener("click", function () { openSages(L.id); });
+      else { b.setAttribute("aria-disabled", "true"); b.addEventListener("click", function (e) { e.preventDefault(); }); }
+      box.appendChild(b);
+    });
+    syncSettings();
+  }
+  function goMap() { renderMap(); show("map"); }
+
+  /* ---------- saggi ---------- */
+  function rulesOf(L) {
+    var n = runSize(L), s = sogliaOf(L), keys;
+    if (L.fig.length === 2) keys = "Tasti: 1 oppure ← per «" + FIG[L.fig[0]].nome + "», 2 oppure → per «" + FIG[L.fig[1]].nome + "».";
+    else keys = "Tasti: " + L.fig.map(function (f, i) { return (i + 1) + " per «" + FIG[f].nome + "»"; }).join(", ") + ".";
+    return [
+      "Dall’alto cadono frasi e versi: hai il tempo di leggerli, ma non troppo.",
+      "Scegli la figura giusta prima che la frase tocchi i tetti del villaggio.",
+      "Si parte dalle frasi più facili e si va verso quelle più difficili.",
+      "Ogni risposta giusta vale almeno " + PUNTI_BASE + " punti, più un piccolo bonus se rispondi in fretta.",
+      "Obiettivo: " + s + " punti (" + n + " frasi in totale). Se lo raggiungi, si apre il livello successivo. Se non lo raggiungi, rifai il livello: le frasi saranno un po’ rimescolate, sempre dalle più facili alle più difficili.",
+      keys
+    ];
+  }
+  function buildSteps(L) {
+    var steps = [], all = L.fig.map(function (_, i) { return i; });
+    L.fig.forEach(function (fk, idx) {
+      var F = FIG[fk];
+      steps.push({ sages: [idx], titolo: F.nome + ": la definizione", blocchi: F.def.map(function (p) { return { p: p }; }) });
+      steps.push({ sages: [idx], titolo: F.nome + ": alcuni esempi", blocchi: [{ p: F.intro }, { esempi: F.esempi }] });
+      steps.push({ sages: [idx], titolo: F.nome + ": in parole semplici", blocchi: F.semplice.map(function (p) { return { p: p }; }) });
+    });
+    steps.push({ sages: all, titolo: "Il trucco dei saggi", blocchi: [{ vs: L.trick.vs }, { p: L.trick.note }] });
+    steps.push({ sages: all, titolo: "Come si gioca", blocchi: [{ ul: rulesOf(L) }, { settings: true }] });
+    return steps;
+  }
+  function openSages(id) {
+    G.L = levelById(id); G.steps = buildSteps(G.L); G.step = 0;
+    renderStep(); show("sages");
+  }
+  function renderStep() {
+    var L = G.L, s = G.steps[G.step];
+    var sp = $("#sprites"); sp.replaceChildren();
+    sp.className = "sprites" + (s.sages.length === 2 ? " two" : s.sages.length > 2 ? " many" : "");
+    s.sages.forEach(function (idx) {
+      var fk = L.fig[idx], f = h("figure"), d = h("div");
+      d.innerHTML = sprite(SAGE_ROWS, sagePal(idx));
+      f.appendChild(d); f.appendChild(h("figcaption", { text: FIG[fk].sage })); sp.appendChild(f);
+    });
+    var b = $("#bubble"); b.replaceChildren(h("h2", { text: s.titolo }));
+    s.blocchi.forEach(function (bl) {
+      if (bl.p) { var p = h("p"); p.appendChild(rich(bl.p)); b.appendChild(p); }
+      else if (bl.esempi) bl.esempi.forEach(function (ex) {
+        var v = h("div", { "class": "v" }); v.appendChild(lines(ex.v, true));
+        b.appendChild(h("div", { "class": "ex" }, v, h("div", { "class": "f", text: ex.f })));
+      });
+      else if (bl.vs) {
+        var g = h("div", { "class": "vs" });
+        bl.vs.forEach(function (x) {
+          var i = L.fig.indexOf(x.fig);
+          g.appendChild(h("div", { "class": "bg-c" + i }, h("b", { text: FIG[x.fig].nome + ": " + x.t }), x.d));
+        });
+        b.appendChild(g);
+      }
+      else if (bl.ul) { var ul = h("ul"); bl.ul.forEach(function (t) { ul.appendChild(h("li", { text: t })); }); b.appendChild(ul); }
+      else if (bl.settings) {
+        b.appendChild(h("div", { "class": "settings" },
+          h("button", { "class": "chip t-calm", type: "button", "aria-pressed": "false" }),
+          h("button", { "class": "chip t-sound", type: "button", "aria-pressed": "false" })));
+        syncSettings();
+      }
+    });
+    var dots = $("#dots"); dots.replaceChildren();
+    G.steps.forEach(function (_, i) { dots.appendChild(h("i", { "class": i === G.step ? "on" : "" })); });
+    $("#btn-prev").style.visibility = G.step === 0 ? "hidden" : "visible";
+    $("#btn-next").textContent = G.step === G.steps.length - 1 ? "Inizia la sfida" : "Avanti";
+  }
+  $("#btn-next").addEventListener("click", function () {
+    if (G.step < G.steps.length - 1) { G.step++; renderStep(); } else startGame(G.L.id);
+  });
+  $("#btn-prev").addEventListener("click", function () { if (G.step > 0) { G.step--; renderStep(); } });
+  $("#btn-skip").addEventListener("click", function () { startGame(G.L.id); });
+  $("#btn-sages-map").addEventListener("click", goMap);
+
+  /* ---------- costruzione della partita ---------- */
+  function wordCount(it) {
+    var w = plain(it.t).split(/\s+/).filter(Boolean).length;
+    if (it.x) w += 0.5 * it.x.split(/\s+/).filter(Boolean).length;
+    return w;
+  }
+  function breakRuns(arr, max) {
+    for (var i = max; i < arr.length; i++) {
+      var same = true;
+      for (var k = 1; k <= max; k++) if (arr[i - k].f !== arr[i].f) { same = false; break; }
+      if (same) {
+        for (var j = i + 1; j < arr.length; j++) if (arr[j].f !== arr[i].f) { var t = arr[i]; arr[i] = arr[j]; arr[j] = t; break; }
+      }
+    }
+    return arr;
+  }
+  function buildRun(L) {
+    var pool = poolOf(L), picked;
+    if (L.perFig) {
+      picked = [];
+      L.fig.forEach(function (f) { picked = picked.concat(shuffle(pool.filter(function (i) { return i.f === f; })).slice(0, L.perFig)); });
+    } else picked = pool.slice();
+    var arr = picked.map(function (it) { return { it: it, k: it.d + Math.random() }; });
+    arr.sort(function (a, b) { return a.k - b.k; });
+    arr = breakRuns(arr.map(function (o) { return o.it; }), 3);
+    var n = arr.length, w0 = Math.round(n * 0.34), w1 = Math.round(n * 0.67), counts = [0, 0, 0];
+    return arr.map(function (it, i) {
+      var wave = i < w0 ? 0 : i < w1 ? 1 : 2;
+      var rt = 3 + 0.5 * wordCount(it), f = 1.3 - 0.45 * (i / Math.max(1, n - 1));
+      return { item: it, wave: wave, nth: counts[wave]++, base: Math.max(7, rt * f) };
+    });
+  }
+
+  function figIdx(f) { return G.L.fig.indexOf(f); }
+  function updateHUD() {
+    $("#score").textContent = G.score + " punti";
+    $("#goal-bar").style.width = clamp(G.score / G.soglia * 100, 0, 100) + "%";
+    $("#goal-t").textContent = "Obiettivo " + G.soglia;
+    var wl = ["Ondata 1", "Ondata 2", "Boss"];
+    $("#wave-label").textContent = G.wave >= 0 ? wl[G.wave] : "Pronti";
+    $("#progress").textContent = "Frase " + Math.min(G.total, G.answered + 1) + " di " + G.total;
+    var boss = G.wave === 2; $("#bossbar").hidden = !boss;
+    if (boss) $("#boss-hp").style.width = (G.bossMax ? (G.bossHp / G.bossMax) * 100 : 0) + "%";
+  }
+  function setExplain(it, ok) {
+    explain.replaceChildren();
+    explain.appendChild(h("strong", { "class": "bg-c" + figIdx(it.f), text: FIG[it.f].nome }));
+    explain.appendChild(document.createTextNode((ok ? "Giusto! " : "") + it.e));
+  }
+  function updateTarget() { G.cards.forEach(function (c, i) { c.el.classList.toggle("target", i === 0); }); }
+  function metrics() { return { fieldH: field.clientHeight, groundH: ground.offsetHeight }; }
+
+  function renderAnswers(L) {
+    var box = $("#answers"); box.replaceChildren();
+    L.fig.forEach(function (f, i) {
+      var hint = L.fig.length === 2 ? "tasto " + (i + 1) + (i === 0 ? " oppure ←" : " oppure →") : "tasto " + (i + 1);
+      var b = h("button", { "class": "ans c" + i, type: "button", "data-i": String(i) }, FIG[f].nome, h("small", { text: hint }));
+      b.addEventListener("click", function () { answer(i); });
+      box.appendChild(b);
+    });
+  }
+
+  function startGame(id) {
+    var L = levelById(id); G.L = L;
+    clearTimeout(G.bt); cancelAnimationFrame(G.raf);
+    G.cards.forEach(function (c) { c.el.remove(); }); G.cards = [];
+    $$(".pop").forEach(function (p) { p.remove(); });
+    G.queue = buildRun(L); G.total = G.queue.length; G.soglia = sogliaOf(L);
+    G.bossMax = G.queue.filter(function (e) { return e.wave === 2; }).length; G.bossHp = G.bossMax;
+    G.score = 0; G.answered = 0; G.correct = 0; G.wave = -1; G.mistakes = [];
+    G.stats = {}; L.fig.forEach(function (f) { G.stats[f] = { ok: 0, tot: 0 }; });
+    G.locked = false; G.paused = false; G.running = true; G.cool = 0.3;
+    fb.hidden = true; pauseBox.hidden = true; endEl.hidden = true; banner.hidden = true;
+    renderAnswers(L);
+    $("#boss-sprite").innerHTML = sprite(BOSS_ROWS, { X: BOSS_COL[(L.id - 1) % BOSS_COL.length], W: "#ffffff", K: "#14123a", M: "#3a0f3d" });
+    $("#boss-name").textContent = L.boss;
+    explain.textContent = "Si parte dalle frasi più facili. Prima che la frase tocchi i tetti, scegli la figura giusta.";
+    show("play"); updateHUD();
+    G.last = performance.now(); G.raf = requestAnimationFrame(frame);
+  }
+
+  function startWave(w) {
+    G.wave = w; G.locked = true; updateHUD();
+    var txt = [
+      ["Ondata 1", "Si parte dalle frasi più facili."],
+      ["Ondata 2", "Si sale di difficoltà."],
+      ["Boss", G.L.boss + ": le frasi più difficili."]
+    ][w];
+    $("#banner-title").textContent = txt[0]; $("#banner-sub").textContent = txt[1];
+    banner.hidden = false;
+    clearTimeout(G.bt);
+    G.bt = setTimeout(function () { banner.hidden = true; if (G.running) { G.locked = false; G.cool = 0.2; } }, 1900);
+  }
+
+  function buildCard(it) {
+    var el = h("div", { "class": "card" });
+    var v = h("div", { "class": "verse" }); v.appendChild(lines(it.t, false)); el.appendChild(v);
+    if (it.x) el.appendChild(h("div", { "class": "trad", text: "Traduzione: " + it.x }));
+    el.appendChild(h("div", { "class": "src", text: it.s }));
+    return el;
+  }
+
+  function spawn() {
+    var entry = G.queue.shift();
+    var el = buildCard(entry.item); field.appendChild(el);
+    var m = metrics(), hh = el.offsetHeight;
+    var dur = entry.base * (G.calm ? 1.5 : 1);
+    var speed = Math.max(30, (m.fieldH - m.groundH) / dur);
+    var prev = G.cards[G.cards.length - 1];
+    if (prev) speed = Math.min(speed, prev.speed);
+    var c = { item: entry.item, entry: entry, el: el, h: hh, y: -hh - 2, speed: speed };
+    el.style.transform = "translate(-50%," + c.y + "px)";
+    G.cards.push(c); updateTarget(); updateHUD();
+  }
+
+  function maybeSpawn(dt) {
+    if (G.cool > 0) { G.cool -= dt; return; }
+    var next = G.queue[0]; if (!next) return;
+    if (next.wave !== G.wave) { if (G.cards.length === 0) startWave(next.wave); return; }
+    var last = G.cards[G.cards.length - 1];
+    if (!last) { spawn(); return; }
+    if (G.wave < 2 || G.calm || G.cards.length >= 2) return;
+    var m = metrics(), frac = (last.y + last.h) / (m.fieldH - m.groundH);
+    if (last.y > 20 && frac > 0.5) spawn();
+  }
+
+  function frame(t) {
+    if (!G.running) return;
+    var dt = Math.min(0.05, (t - G.last) / 1000 || 0); G.last = t;
+    if (!G.paused && !G.locked) {
+      var m = metrics(), limit = m.fieldH - m.groundH + 12;
+      G.cards.forEach(function (c) { c.y += c.speed * dt; c.el.style.transform = "translate(-50%," + c.y.toFixed(1) + "px)"; });
+      var c0 = G.cards[0];
+      if (c0 && c0.y + c0.h >= limit) resolve(c0, null);
+      else maybeSpawn(dt);
+    }
+    G.raf = requestAnimationFrame(frame);
+  }
+
+  function popup(c, pts) {
+    var p = h("div", { "class": "pop", text: "+" + pts });
+    p.style.top = clamp(c.y, 10, field.clientHeight - 90) + "px";
+    field.appendChild(p); setTimeout(function () { p.remove(); }, 850);
+  }
+
+  function answer(i) {
+    if (!G.running || G.paused || G.locked) return;
+    var c = G.cards[0]; if (!c) return;
+    resolve(c, G.L.fig[i]);
+  }
+
+  function resolve(c, tipo) {
+    var it = c.item, ok = tipo === it.f;
+    G.cards.shift(); G.answered++; G.stats[it.f].tot++;
+    c.el.classList.remove("target"); c.el.classList.add(ok ? "ok" : "bad");
+    setTimeout(function () { c.el.remove(); }, 400);
+    if (ok) {
+      G.stats[it.f].ok++; G.correct++;
+      var m = metrics(), frac = clamp(1 - (c.y + c.h) / (m.fieldH - m.groundH), 0, 1);
+      var pts = PUNTI_BASE + Math.round(PUNTI_BONUS * frac);
+      G.score += pts; popup(c, pts);
+      if (c.entry.wave === 2) G.bossHp = Math.max(0, G.bossHp - 1);
+      sfx("ok"); setExplain(it, true);
+      G.cool = G.calm ? 0.9 : 0.6;
+      updateTarget(); updateHUD(); checkEnd();
+    } else {
+      if (G.mistakes.indexOf(it) < 0) G.mistakes.push(it);
+      sfx("bad"); setExplain(it, false);
+      G.locked = true; updateHUD(); showFeedback(it, tipo === null ? "miss" : "wrong");
+    }
+  }
+
+  function checkEnd() {
+    if (G.queue.length === 0 && G.cards.length === 0) setTimeout(function () { endGame(); }, 700);
+  }
+
+  function showFeedback(it, kind) {
+    $("#fb-title").textContent = kind === "miss" ? "Troppo tardi!" : "Non proprio…";
+    $("#fb-sub").textContent = kind === "miss" ? "La frase ha toccato i tetti del villaggio." : "Quella non era la risposta giusta.";
+    var badge = $("#fb-badge"); badge.textContent = "Era: " + FIG[it.f].nome; badge.className = "badge bg-c" + figIdx(it.f);
+    $("#fb-verse").replaceChildren(lines(it.t, true));
+    $("#fb-trad").textContent = it.x ? "Traduzione: " + it.x : ""; $("#fb-trad").hidden = !it.x;
+    $("#fb-src").textContent = it.s;
+    $("#fb-spieg").textContent = it.e;
+    fb.hidden = false; $("#fb-btn").focus();
+  }
+  $("#fb-btn").addEventListener("click", function () {
+    fb.hidden = true; G.locked = false; G.cool = G.calm ? 0.9 : 0.6;
+    if (G.queue.length === 0 && G.cards.length === 0) endGame(); else updateTarget();
+  });
+
+  function togglePause() {
+    if (!G.running || !fb.hidden || !endEl.hidden) return;
+    G.paused = !G.paused; pauseBox.hidden = !G.paused;
+    if (G.paused) $("#btn-resume").focus();
+  }
+  $("#btn-pause").addEventListener("click", togglePause);
+  $("#btn-resume").addEventListener("click", togglePause);
+  $("#btn-quit").addEventListener("click", function () {
+    G.running = false; cancelAnimationFrame(G.raf); clearTimeout(G.bt);
+    G.cards.forEach(function (c) { c.el.remove(); }); G.cards = [];
+    pauseBox.hidden = true; goMap();
+  });
+
+  /* ---------- fine livello ---------- */
+  function endGame() {
+    if (!G.running) return;
+    G.running = false; cancelAnimationFrame(G.raf); clearTimeout(G.bt);
+    G.cards.forEach(function (c) { c.el.remove(); }); G.cards = [];
+    var L = G.L, pass = G.score >= G.soglia, acc = G.total ? G.correct / G.total : 0;
+    var stars = pass ? (acc >= 0.93 ? 3 : acc >= 0.8 ? 2 : 1) : 0;
+    if (pass) {
+      var r = P.levels[L.id] || { best: 0, stars: 0, passed: false };
+      r.best = Math.max(r.best, G.score); r.stars = Math.max(r.stars, stars); r.passed = true;
+      P.levels[L.id] = r; saveP();
+    }
+    sfx(pass ? "win" : "lose");
+    var next = levelById(L.id + 1);
+    endEl.replaceChildren();
+    var p = h("div", { "class": "panel" });
+    p.appendChild(h("h2", { id: "end-t", text: pass ? (next ? "Livello superato!" : "Villaggio completato!") : "Non ancora!" }));
+    p.appendChild(h("p", { "class": "sub", text: pass
+      ? "Hai raggiunto l’obiettivo: " + G.score + " punti su " + G.soglia + " richiesti."
+      : "Hai fatto " + G.score + " punti: ne servivano " + G.soglia + ". Riprova: le frasi saranno un po’ rimescolate, sempre dalle più facili alle più difficili." }));
+    if (pass) p.appendChild(h("div", { "class": "stars", role: "img", "aria-label": stars + " stelle su 3", text: starsText(stars) }));
+    p.appendChild(h("div", { "class": "stat" }, h("span", { text: "Punteggio" }), h("b", { text: G.score + " / obiettivo " + G.soglia })));
+    p.appendChild(h("div", { "class": "stat" }, h("span", { text: "Risposte giuste" }), h("b", { text: G.correct + " su " + G.total })));
+    L.fig.forEach(function (k) {
+      var s = G.stats[k];
+      p.appendChild(h("div", { "class": "stat" }, h("span", { text: FIG[k].nome }), h("b", { text: s.ok + " su " + s.tot })));
+    });
+    if (G.mistakes.length) {
+      var rv = h("div", { "class": "review" }, h("h3", { text: "Da ripassare" }));
+      G.mistakes.forEach(function (it) {
+        var v = h("div", { "class": "v" }); v.appendChild(lines(it.t, true));
+        rv.appendChild(h("div", { "class": "it" }, v, h("div", { "class": "e", text: FIG[it.f].nome + ": " + it.e })));
+      });
+      p.appendChild(rv);
+    } else p.appendChild(h("p", { text: "Nessun errore: sei un vero poeta del villaggio!" }));
+    if (pass && next) p.appendChild(h("p", { text: "Si apre il livello " + next.id + ": " + next.nome + "." }));
+    var act = h("div", { "class": "actions" }), first;
+    if (pass && next) { first = h("button", { "class": "btn", type: "button", text: "Livello successivo" }); first.addEventListener("click", function () { endEl.hidden = true; openSages(next.id); }); act.appendChild(first); }
+    var again = h("button", { "class": pass && next ? "btn dark" : "btn", type: "button", text: pass ? "Rigioca il livello" : "Riprova" });
+    again.addEventListener("click", function () { startGame(L.id); });
+    act.appendChild(again);
+    if (!pass) {
+      var rev = h("button", { "class": "btn dark", type: "button", text: "Rivedi le lezioni" });
+      rev.addEventListener("click", function () { endEl.hidden = true; openSages(L.id); });
+      act.appendChild(rev);
+    }
+    var back = h("button", { "class": "btn dark", type: "button", text: "Mappa" });
+    back.addEventListener("click", function () { endEl.hidden = true; goMap(); });
+    act.appendChild(back);
+    p.appendChild(act);
+    endEl.appendChild(p); endEl.hidden = false; (first || again).focus();
+  }
+
+  /* ---------- eventi ---------- */
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!$("#play").classList.contains("active")) return;
+    var k = e.key;
+    if (!fb.hidden || !endEl.hidden) return;
+    if (!pauseBox.hidden) { if (k === "Escape" || k === "p" || k === "P") togglePause(); return; }
+    var n = G.L ? G.L.fig.length : 0, idx = -1;
+    if (k >= "1" && k <= "4" && +k <= n) idx = +k - 1;
+    else if (k === "ArrowLeft" && n === 2) idx = 0;
+    else if (k === "ArrowRight" && n === 2) idx = 1;
+    if (idx >= 0) { e.preventDefault(); answer(idx); }
+    else if (k === "p" || k === "P" || k === "Escape") togglePause();
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden && G.running && !G.paused && fb.hidden && endEl.hidden) togglePause();
+  });
+  window.addEventListener("resize", function () { G.cards.forEach(function (c) { c.h = c.el.offsetHeight; }); });
+  $("#btn-enter").addEventListener("click", goMap);
+  renderMap();
+})();
+
+</script>
+</body>
+</html>
